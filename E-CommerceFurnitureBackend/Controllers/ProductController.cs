@@ -1,21 +1,40 @@
 ﻿using E_CommerceFurnitureBackend.Models;
+using E_CommerceFurnitureBackend.Models.DTO;
 using E_CommerceFurnitureBackend.Services.ProductServices;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
-    public class ProductController
+    public class ProductController:ControllerBase
     {
         private readonly IProductServices _productServices;
         public ProductController(IProductServices productServices)
         {
             this._productServices = productServices;
         }
-        [HttpGet("hi")]
-        public async Task<Product> GetProductById(int id)
+        [HttpGet("Product/id")]
+        public async Task<IActionResult> GetProductById(int id)
         {
-            var res = _productServices.ViewProductById(id);
+            try
+            {
+                if (id != 0 || id!=null) {
+                    var product = await _productServices.ViewProductById(id);
+                    if (product != null)
+                    {
+                        return Ok();
+                    }
+                    return NotFound("Product Not Found");
+                }else { return BadRequest("Id can not contain zero or Null value"); }
+            }catch (DbUpdateException ex)
+            {
+                return BadRequest($"An error occured while accessing the database : {ex.Message}");
+            }catch(Exception ex)
+            {
+                return BadRequest($"An Unexpected error occurred{ex.Message}");
+            }
+
         }
     }
 }
