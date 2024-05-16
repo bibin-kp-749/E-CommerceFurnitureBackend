@@ -16,6 +16,9 @@ namespace E_CommerceFurnitureBackend.DbCo
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<OrderItem>()
+                .Property(o => o.Price)
+                .HasColumnType("decimal(18,2)");
             modelBuilder.Entity<Cart>()
                 .HasOne(u => u.User)
                 .WithOne(c => c.Cart)
@@ -49,5 +52,14 @@ namespace E_CommerceFurnitureBackend.DbCo
                 .WithMany(oi=>oi.orderItems)
                 .HasForeignKey(oi=>oi.OrderId);
         }
+        public DbSet<User> Users { get; set;}
+        public DbSet<Product> Products { get; set;}
+        public DbSet<Cart> Cart { get; set;}
+        public DbSet <CartItems> CartItems { get; set;}
+        public DbSet<OrderItem> OrderItems { get; set;}
+        public DbSet<Order> Order {  get; set;}
+        public DbSet<Category> Categories { get; set;}
+        public DbSet<Types> Types { get; set;}
+
     }
 }

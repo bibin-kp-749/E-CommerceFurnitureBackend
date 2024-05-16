@@ -1,8 +1,10 @@
-﻿namespace E_CommerceFurnitureBackend.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace E_CommerceFurnitureBackend.Models
 {
     public class Product
     {
-        public int ProductId { get; set; }
+        public int ProductId { get; set; }    
         public string? ProductName { get; set; }
         public string? ProductCaption { get; set;}
         public string? Image { get; set;}
@@ -12,7 +14,7 @@
         public int Type { get; set;}
         public List<CartItems> CartItems { get; set; }
         public List<OrderItem> OrderItems { get; set; }
-        public Type types { get; set; }
+        public Types types { get; set; }
         public Category categories { get; set;}
     }
 }
