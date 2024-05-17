@@ -51,6 +51,14 @@ namespace E_CommerceFurnitureBackend.DbCo
                 .HasOne(o=>o.order)
                 .WithMany(oi=>oi.orderItems)
                 .HasForeignKey(oi=>oi.OrderId);
+            modelBuilder.Entity<WishList>()
+                .HasOne(p=>p.product)
+                .WithMany(w=>w.wishLists)
+                .HasForeignKey(w=>w.ProductId);
+            modelBuilder.Entity<WishList>()
+                .HasOne(u=>u.user)
+                .WithMany(w=>w.WhishLists)
+                .HasForeignKey(w=>w.UserId);
         }
         public DbSet<User> Users { get; set;}
         public DbSet<Product> Products { get; set;}

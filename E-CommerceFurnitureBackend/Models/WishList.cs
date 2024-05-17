@@ -2,13 +2,14 @@
 
 namespace E_CommerceFurnitureBackend.Models
 {
-    public class CartItems
+    public class WishList
     {
         public int Id { get; set; }
-        public int CartId { get; set; }
+        [Required]
+        public int UserId { get; set; }
         [Required]
         public int ProductId { get; set; }
-        public virtual Cart Cart { get; set; }
-        public virtual Product Product { get; set; }
+        public virtual User user { get; set; }
+        public virtual Product product { get; set; }
     }
 }

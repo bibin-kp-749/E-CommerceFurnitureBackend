@@ -21,10 +21,10 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             try
             {
                 var cartid = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == UserId);
-                if (cartid != null)
+                if (cartid.CartId != null)
                 {
-                    _userDbContext.CartItems.Add(new CartItems { CartId=cartid.CartId,ProductId=items.ProductId});
-                    await _userDbContext.SaveChangesAsync();
+                   await _userDbContext.CartItems.AddAsync(new CartItems { CartId=cartid.CartId,ProductId=items.ProductId});
+                   await _userDbContext.SaveChangesAsync();
                 }else
                 {
                     await _userDbContext.Cart.AddAsync(new Cart { UserId = UserId });

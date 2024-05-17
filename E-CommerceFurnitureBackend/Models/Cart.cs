@@ -4,7 +4,7 @@
     {
         public int CartId { get; set; }
         public int UserId { get; set; }
-        public User User { get; set; }
-        public List<CartItems> CartItems { get; set; }
+        public virtual User User { get; set; }
+        public virtual List<CartItems> CartItems { get; set; }
     }
 }

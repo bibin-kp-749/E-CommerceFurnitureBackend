@@ -6,6 +6,6 @@ namespace E_CommerceFurnitureBackend.Models
     {
         public int Id { get; set; }
         public string? TypeName { get; set; }
-        public List<Product> Product { get; set; }
+        public virtual List<Product> Product { get; set; }
     }
 }

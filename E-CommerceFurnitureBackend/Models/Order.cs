@@ -21,8 +21,8 @@ namespace E_CommerceFurnitureBackend.Models
         public string CustomerHomeAddress {  get; set; }
         public DateTime OrderTime { get; set; }
         public int OrderStatus { get; set; }
-        public User User { get; set; }
-        public List<OrderItem> orderItems { get; set; }
+        public virtual User User { get; set; }
+        public virtual List<OrderItem> orderItems { get; set; }
 
     }
 }

@@ -4,6 +4,6 @@
     {
         public int CategoryId { get; set; }
         public string? CategoryName { get; set; }
-        public List<Product> Product { get; set; }
+        public virtual List<Product> Product { get; set; }
     }
 }
