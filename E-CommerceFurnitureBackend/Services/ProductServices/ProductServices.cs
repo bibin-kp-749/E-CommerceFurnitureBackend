@@ -25,5 +25,24 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             }
             return null;
         }
+        public async Task<List<ProductDto>> ViewProductByCategory(string category)
+        {
+            List<ProductDto> products=new List<ProductDto>();
+            var data = await _userDbContext.Products.Include(c=>c.categories).Where(c=>c.categories.CategoryName==category).ToListAsync();
+            if (data != null) 
+            {
+                foreach (var i in data)
+                {
+                    var product = _mapper.Map<ProductDto>(data);
+                    products.Add(product);
+                }
+                return products;
+            }
+            return null;
+        }
+        public async Task AddProductToCart()
+        {
+
+        }
     }
 }

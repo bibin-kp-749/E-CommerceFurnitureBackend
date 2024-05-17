@@ -23,10 +23,11 @@ namespace E_CommerceFurnitureBackend.Controllers
                     var product = await _productServices.ViewProductById(id);
                     if (product != null)
                     {
-                        return Ok();
+                        return Ok(product);
                     }
                     return NotFound("Product Not Found");
-                }else { return BadRequest("Id can not contain zero or Null value"); }
+                }else 
+                    return BadRequest("Id can not contain zero or Null value"); 
             }catch (DbUpdateException ex)
             {
                 return BadRequest($"An error occured while accessing the database : {ex.Message}");
@@ -35,6 +36,28 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return BadRequest($"An Unexpected error occurred{ex.Message}");
             }
 
+        }
+        [HttpGet("Product/Category")]
+        public async Task<IActionResult> ViewProductByCategory(string category)
+        {
+            try
+            {
+                if(category != null||category!= "^\\s+")
+                {
+                    var product = await _productServices.ViewProductByCategory(category);
+                    if (product != null)
+                        return Ok(product);
+                    return NotFound("Product Not Found");
+                }
+                else
+                    return BadRequest("category field is required");
+            }catch(DbUpdateException ex)
+            {
+                return BadRequest($"An error occured while accessing the database : {ex.Message}");
+            }catch(Exception ex)
+            {
+                return BadRequest($"An Unexpected error occurred{ex.Message}");
+            }
         }
     }
 }

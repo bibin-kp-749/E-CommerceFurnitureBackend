@@ -15,9 +15,9 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
             this._mapper = mapper;
         }
         public async Task RegisterUser(UserDto userDto)
-        {
-            _userDbContext.Users.Add(_mapper.Map<User>(userDto));
-            _userDbContext.SaveChanges();
+        { 
+                _userDbContext.Users.Add(_mapper.Map<User>(userDto));
+                _userDbContext.SaveChanges();
         }
     }
 }
