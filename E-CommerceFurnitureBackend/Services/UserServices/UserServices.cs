@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BCrypt.Net;
 using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Models;
 using E_CommerceFurnitureBackend.Models.DTO;
@@ -22,8 +23,10 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
             {
                 if (userDto.Email.Length < 1 || userDto.Password.Length < 1)
                     return false;
-                _userDbContext.Users.Add(_mapper.Map<User>(userDto));
-                _userDbContext.SaveChanges();
+                var HashPasswor=BCrypt.Net.BCrypt.EnhancedHashPassword(userDto.Password,HashType.SHA256);
+                userDto.Password=HashPasswor;
+               await _userDbContext.Users.AddAsync(_mapper.Map<User>(userDto));
+               await _userDbContext.SaveChangesAsync();
                 return true;
             }catch(Exception ex)
             {
@@ -44,6 +47,14 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
             if (user == null) 
                 return null;
             return _mapper.Map<UserDto>(user);
+        }
+        public async Task<Boolean> LoginUser(LoginDto user)
+        {
+            var data=await _userDbContext.Users.FirstOrDefaultAsync(u=>u.Email==user.Email);
+            var passsword = BCrypt.Net.BCrypt.EnhancedVerify(user.Password, data.Password, HashType.SHA256);
+            if(passsword)
+                return true;
+            return false;
         }
     }
 }

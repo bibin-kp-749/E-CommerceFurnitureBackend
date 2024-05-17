@@ -7,5 +7,6 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
        Task<Boolean> RegisterUser(UserDto userDto);
        Task<List<UserDto>> ViewAllUsers();
        Task<UserDto> ViewUserById(int Id);
+       Task<Boolean> LoginUser(LoginDto user);
     }
 }

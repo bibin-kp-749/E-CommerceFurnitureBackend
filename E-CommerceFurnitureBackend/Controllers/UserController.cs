@@ -17,7 +17,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             this._userServices = userServices;
         }
         [HttpPost("RegisterUser")]
-        public async Task<IActionResult> Registraion(UserDto userDto)
+        public async Task<IActionResult> RegisterUser(UserDto userDto)
         {
             try
             {
@@ -72,6 +72,23 @@ namespace E_CommerceFurnitureBackend.Controllers
             catch (DbUpdateException ex)
             {
                 return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpPost("LoginUser")]
+        public async Task<IActionResult> LoginUser(LoginDto user)
+        {
+            try
+            {
+                if (user.Email == null || user.Password == null)
+                    return BadRequest("Please fill all the fields");
+                var response= await _userServices.LoginUser(user);
+                if (response)
+                    return StatusCode(204, "Login successfully");
+                return StatusCode(404,"User not found");
             }
             catch (Exception ex)
             {
