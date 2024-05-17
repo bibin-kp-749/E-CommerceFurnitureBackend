@@ -59,5 +59,43 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return BadRequest($"An Unexpected error occurred{ex.Message}");
             }
         }
+        [HttpPost("AddNewProduct")]
+        public async Task<IActionResult> AddProduct(ProductDto product)
+        {
+            try
+            {
+                if (product!= null)
+                {
+                    var data=await _productServices.CreateProduct(product);
+                    if (data)
+                        return Ok("Updated Successfully");
+                    else
+                        return BadRequest("Product Already existed");
+                }
+                return BadRequest("Please fill all the fields");
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest($"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"An Unexpected error occurred{ex.Message}");
+            }
+
+        }
+        [HttpPost("DeleteProduct")]
+        public async Task<IActionResult> DeleteProduct(int Id)
+        {
+            try
+            {
+                if (Id == null || Id == 0)
+                    return BadRequest("Id can not contain zero or Null value");
+                var response =async _productServices.DeleteProduct(Id);
+                if(response)
+                    return Ok("Product Removed successfully");
+            }catch(Exception ex) { }
+
+        }
     }
 }

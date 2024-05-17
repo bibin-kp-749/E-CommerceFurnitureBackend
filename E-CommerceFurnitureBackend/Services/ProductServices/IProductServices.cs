@@ -7,5 +7,7 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
     {
         Task<ProductDto> ViewProductById(int productId);
         Task<List<ProductDto>> ViewProductByCategory(string category);
+        Task<Boolean> CreateProduct(ProductDto product);
+        Task<Boolean> DeleteProduct(int Id);
     }
 }

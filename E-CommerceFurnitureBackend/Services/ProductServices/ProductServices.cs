@@ -27,22 +27,48 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
         }
         public async Task<List<ProductDto>> ViewProductByCategory(string category)
         {
-            List<ProductDto> products=new List<ProductDto>();
-            var data = await _userDbContext.Products.Include(c=>c.categories).Where(c=>c.categories.CategoryName==category).ToListAsync();
-            if (data != null) 
+            List<ProductDto> products = new List<ProductDto>();
+            var data = await _userDbContext.Products.Include(c => c.categories).Where(c => c.categories.CategoryName == category).ToListAsync();
+            if (data != null)
             {
                 foreach (var i in data)
                 {
-                    var product = _mapper.Map<ProductDto>(data);
+                    var product = _mapper.Map<ProductDto>(i);
                     products.Add(product);
                 }
                 return products;
             }
             return null;
         }
-        public async Task AddProductToCart()
+        public async Task<bool> CreateProduct(ProductDto product)
         {
-
+            try
+            {
+                var IsExist =await _userDbContext.Products.AnyAsync(p => p.ProductName == product.ProductName);
+                if (IsExist)
+                    return false;
+                if (product.Image.Length>0&&product.Image!=null)
+                {
+                    var value = _mapper.Map<Product>(product);
+                    await _userDbContext.Products.AddAsync(value);
+                    await _userDbContext.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            }catch(Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                return false;
+            }
+        }
+        public async Task<Boolean> DeleteProduct(int Id)
+        {
+            var product=await _userDbContext.Products.FirstOrDefaultAsync(p=>p.ProductId == Id);
+            if (product == null)
+                return false;
+            _userDbContext.Products.Remove(product);
+            await _userDbContext.SaveChangesAsync();
+            return true;
         }
     }
 }
