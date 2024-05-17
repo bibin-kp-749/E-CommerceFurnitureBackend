@@ -28,12 +28,14 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return NotFound("Product Not Found");
                 }else 
                     return BadRequest("Id can not contain zero or Null value"); 
-            }catch (DbUpdateException ex)
+            }
+            catch (DbUpdateException ex)
             {
-                return BadRequest($"An error occured while accessing the database : {ex.Message}");
-            }catch(Exception ex)
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
             {
-                return BadRequest($"An Unexpected error occurred{ex.Message}");
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
 
         }
@@ -51,12 +53,14 @@ namespace E_CommerceFurnitureBackend.Controllers
                 }
                 else
                     return BadRequest("category field is required");
-            }catch(DbUpdateException ex)
+            }
+            catch (DbUpdateException ex)
             {
-                return BadRequest($"An error occured while accessing the database : {ex.Message}");
-            }catch(Exception ex)
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
             {
-                return BadRequest($"An Unexpected error occurred{ex.Message}");
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
         [HttpPost("AddNewProduct")]
@@ -68,34 +72,82 @@ namespace E_CommerceFurnitureBackend.Controllers
                 {
                     var data=await _productServices.CreateProduct(product);
                     if (data)
-                        return Ok("Updated Successfully");
+                        return StatusCode(204,"Updated Successfully");
                     else
-                        return BadRequest("Product Already existed");
+                        return StatusCode(409,"Product Already existed");
                 }
                 return BadRequest("Please fill all the fields");
             }
             catch (DbUpdateException ex)
             {
-                return BadRequest($"An error occured while accessing the database : {ex.Message}");
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
             }
             catch (Exception ex)
             {
-                return BadRequest($"An Unexpected error occurred{ex.Message}");
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
 
         }
-        [HttpPost("DeleteProduct")]
+        [HttpPut("UpdateProduct")]
+        public async Task<IActionResult> UpdateProduct(int Id, ProductDto product)
+        {
+            try
+            {
+                var response = await _productServices.UpdateProduct(Id, product);
+                if (response)
+                    return StatusCode(204,"Successfully Updated");
+                return NotFound("Item not found");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpDelete("DeleteProduct")]
         public async Task<IActionResult> DeleteProduct(int Id)
         {
             try
             {
                 if (Id == null || Id == 0)
                     return BadRequest("Id can not contain zero or Null value");
-                var response =async _productServices.DeleteProduct(Id);
-                if(response)
-                    return Ok("Product Removed successfully");
-            }catch(Exception ex) { }
+                var response =await _productServices.DeleteProduct(Id);
+                if (response)
+                    return StatusCode(204,"Product Removed successfully");
+                else
+                    return BadRequest("Product does not exist please Check your Id");
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500,$"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500,$"An Unexpected error occurred{ex.Message}");
+            }
 
+        }
+        [HttpGet("GetAllProducts")]
+        public async Task<IActionResult> ViewAllProducts()
+        {
+            try
+            {
+                var response =await _productServices.ViewAllProducts();
+                if(response==null)
+                    return BadRequest("Products Not found");
+                return Ok(response);
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500,$"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500,$"An Unexpected error occurred{ex.Message}");
+            }
         }
     }
 }

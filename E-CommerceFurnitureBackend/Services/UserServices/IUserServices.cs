@@ -4,6 +4,8 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
 {
     public interface IUserServices
     {
-        Task RegisterUser(UserDto userDto);
+       Task<Boolean> RegisterUser(UserDto userDto);
+       Task<List<UserDto>> ViewAllUsers();
+       Task<UserDto> ViewUserById(int Id);
     }
 }

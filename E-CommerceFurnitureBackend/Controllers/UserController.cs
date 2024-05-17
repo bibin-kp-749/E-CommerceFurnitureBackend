@@ -23,15 +23,61 @@ namespace E_CommerceFurnitureBackend.Controllers
             {
             if (userDto==null)
                 return BadRequest("Please Fill all The Fields");
-                _userServices.RegisterUser(userDto);
-               return Ok("Registered Successfully");
-            }catch (DbUpdateException ex)
+                var response=await _userServices.RegisterUser(userDto);
+                if (response)
+                    return StatusCode(204,"Registered Successfully");
+                else
+                    return StatusCode(500,"Registration Failed Please Retry");
+            }
+            catch (DbUpdateException ex)
             {
-                return BadRequest($"An error occured while accessing the database : {ex.Message}");
-            }catch (Exception ex)
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
             {
-                return BadRequest($"An unexpected error occured : {ex.Message}");
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
+        [HttpGet("GetAllUser")]
+        public async Task<IActionResult> ViewAllUsers()
+        {
+            try
+            {
+                var response = await _userServices.ViewAllUsers();
+                if (response == null)
+                    return NotFound("Users Not found");
+                return Ok(response);
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpGet("GetUserById")]
+        public async Task<IActionResult> ViewUserById(int Id)
+        {
+            try
+            {
+                if (Id == 0 || Id == null)
+                    return BadRequest("Id can not contain zero or Null value");
+                var response= await _userServices.ViewUserById(Id);
+                if (response == null)
+                    return NotFound("User Not Found");
+                return Ok(response);
+            }
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+
     }
 }

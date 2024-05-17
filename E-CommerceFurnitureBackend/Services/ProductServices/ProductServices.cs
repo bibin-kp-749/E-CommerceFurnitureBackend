@@ -27,17 +27,9 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
         }
         public async Task<List<ProductDto>> ViewProductByCategory(string category)
         {
-            List<ProductDto> products = new List<ProductDto>();
             var data = await _userDbContext.Products.Include(c => c.categories).Where(c => c.categories.CategoryName == category).ToListAsync();
             if (data != null)
-            {
-                foreach (var i in data)
-                {
-                    var product = _mapper.Map<ProductDto>(i);
-                    products.Add(product);
-                }
-                return products;
-            }
+                  return _mapper.Map<List<ProductDto>>(data);
             return null;
         }
         public async Task<bool> CreateProduct(ProductDto product)
@@ -47,14 +39,12 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                 var IsExist =await _userDbContext.Products.AnyAsync(p => p.ProductName == product.ProductName);
                 if (IsExist)
                     return false;
-                if (product.Image.Length>0&&product.Image!=null)
-                {
-                    var value = _mapper.Map<Product>(product);
-                    await _userDbContext.Products.AddAsync(value);
-                    await _userDbContext.SaveChangesAsync();
-                    return true;
-                }
-                return false;
+                if (product.Image.Length==0||product.Image!=null)
+                    return false;
+                var value = _mapper.Map<Product>(product);
+                await _userDbContext.Products.AddAsync(value);
+                await _userDbContext.SaveChangesAsync();
+                return true;           
             }catch(Exception ex)
             {
                 await Console.Out.WriteLineAsync(ex.Message);
@@ -68,6 +58,28 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                 return false;
             _userDbContext.Products.Remove(product);
             await _userDbContext.SaveChangesAsync();
+            return true;
+        }
+        public async Task<List<ProductDto>> ViewAllProducts()
+        {
+            var response=await _userDbContext.Products.ToListAsync();
+            if (response==null)
+                return null;
+            return _mapper.Map<List<ProductDto>>(response);
+        }
+        public async Task<Boolean> UpdateProduct(int Id, ProductDto product)
+        {
+            var response= await _userDbContext.Products.FirstOrDefaultAsync(p=>p.ProductId==Id);
+            if (response == null)
+                return false;
+            response.ProductName = product.ProductName;
+            response.ProductCaption = product.ProductCaption;
+            response.Category = product.Category;
+            response.Image = product.Image;
+            response.OriginalPrice = product.OriginalPrice;
+            response.OfferPrice = product.OfferPrice;
+            response.Type=product.Type;
+            _userDbContext.SaveChanges();
             return true;
         }
     }
