@@ -22,7 +22,6 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
                 var handler =new JwtSecurityTokenHandler();
                 var SecurityToken=handler.ReadJwtToken(token);
                 var userId = SecurityToken.Claims.FirstOrDefault(s => s.Type == "nameid")?.Value;
-                //var id=Convert.ToInt32(userId);
                 var data = await _userDbContext.WishLists.AddAsync(new WishList { UserId=Convert.ToInt32(userId),ProductId=ProdctId });
                 await _userDbContext.SaveChangesAsync();
                 return true;
