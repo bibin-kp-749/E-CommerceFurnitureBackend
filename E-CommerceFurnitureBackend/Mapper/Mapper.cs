@@ -12,6 +12,7 @@ namespace E_CommerceFurnitureBackend.Mapper
             CreateMap<Product,ProductDto>().ReverseMap();
             CreateMap<CartItems,CartItemsDto>().ReverseMap();
             CreateMap<Cart,CartDto>().ReverseMap();
+            CreateMap<Category,CategoryDto>().ReverseMap();
         }
     }
 }

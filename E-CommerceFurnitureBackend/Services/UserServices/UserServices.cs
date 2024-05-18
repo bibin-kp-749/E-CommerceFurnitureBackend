@@ -25,8 +25,8 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
                     return false;
                 var HashPasswor=BCrypt.Net.BCrypt.EnhancedHashPassword(userDto.Password,HashType.SHA256);
                 userDto.Password=HashPasswor;
-               await _userDbContext.Users.AddAsync(_mapper.Map<User>(userDto));
-               await _userDbContext.SaveChangesAsync();
+                await _userDbContext.Users.AddAsync(_mapper.Map<User>(userDto));
+                await _userDbContext.SaveChangesAsync();
                 return true;
             }catch(Exception ex)
             {
@@ -55,6 +55,24 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
             if(passsword)
                 return true;
             return false;
+        }
+        public async Task<Boolean> BlockUser(int id)
+        {
+            var data= await _userDbContext.Users.FirstOrDefaultAsync(u=>u.UserId==id);
+            if(data == null)
+                return false;
+            data.Isstatus = false;
+            _userDbContext.SaveChanges();
+            return true;
+        }
+        public async Task<Boolean> UnBlockUser(int id)
+        {
+            var data=await _userDbContext.Users.FirstOrDefaultAsync(u=>u.UserId==id);
+            if(data == null)
+                return false;
+            data.Isstatus = true;
+            _userDbContext.SaveChanges();
+            return true;
         }
     }
 }

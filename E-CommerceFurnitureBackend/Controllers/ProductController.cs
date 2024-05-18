@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ProductController:ControllerBase
     {
         private readonly IProductServices _productServices;
@@ -14,7 +16,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             this._productServices = productServices;
         }
-        [HttpGet("Product/id")]
+        [HttpGet("/:ProductId")]
         public async Task<IActionResult> GetProductById(int id)
         {
             try
@@ -29,17 +31,13 @@ namespace E_CommerceFurnitureBackend.Controllers
                 }else 
                     return BadRequest("Id can not contain zero or Null value"); 
             }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
-            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
 
         }
-        [HttpGet("Product/Category")]
+        [HttpGet("/:productcategory")]
         public async Task<IActionResult> ViewProductByCategory(string category)
         {
             try
@@ -54,16 +52,12 @@ namespace E_CommerceFurnitureBackend.Controllers
                 else
                     return BadRequest("category field is required");
             }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
-            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPost("AddNewProduct")]
+        [HttpPost("add-product")]
         public async Task<IActionResult> AddProduct(ProductDto product)
         {
             try
@@ -72,15 +66,11 @@ namespace E_CommerceFurnitureBackend.Controllers
                 {
                     var data=await _productServices.CreateProduct(product);
                     if (data)
-                        return StatusCode(204,"Updated Successfully");
+                        return Ok("Updated Successfully");
                     else
                         return StatusCode(409,"Product Already existed");
                 }
                 return BadRequest("Please fill all the fields");
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -88,26 +78,22 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
 
         }
-        [HttpPut("UpdateProduct")]
+        [HttpPut("update-product")]
         public async Task<IActionResult> UpdateProduct(int Id, ProductDto product)
         {
             try
             {
                 var response = await _productServices.UpdateProduct(Id, product);
                 if (response)
-                    return StatusCode(204,"Successfully Updated");
+                    return Ok("Successfully Updated");
                 return NotFound("Item not found");
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpDelete("DeleteProduct")]
+        [HttpDelete("delete-product")]
         public async Task<IActionResult> DeleteProduct(int Id)
         {
             try
@@ -116,13 +102,9 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return BadRequest("Id can not contain zero or Null value");
                 var response =await _productServices.DeleteProduct(Id);
                 if (response)
-                    return StatusCode(204,"Product Removed successfully");
+                    return Ok("Product Removed successfully");
                 else
                     return BadRequest("Product does not exist please Check your Id");
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500,$"An error occured while accessing the database : {ex.Message}");
             }
             catch (Exception ex)
             {
@@ -140,13 +122,26 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return BadRequest("Products Not found");
                 return Ok(response);
             }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500,$"An error occured while accessing the database : {ex.Message}");
-            }
             catch (Exception ex)
             {
                 return StatusCode(500,$"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpPost("category")]
+        public async Task<IActionResult> AddNewCategory(CategoryDto category)
+        {
+            try
+            {
+                if (category.CategoryName.Length < 1)
+                    return BadRequest("please fill the field");
+                var response = await _productServices.AddNewCategory(category);
+                if (response)
+                    return StatusCode(201, "Successfully created product");
+                return StatusCode(500, "Internal server error ");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
     }

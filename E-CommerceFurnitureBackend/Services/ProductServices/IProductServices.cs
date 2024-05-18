@@ -11,5 +11,6 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
         Task<Boolean> DeleteProduct(int Id);
         Task<List<ProductDto>> ViewAllProducts();
         Task<Boolean> UpdateProduct(int Id, ProductDto product);
+        Task<Boolean> AddNewCategory(CategoryDto category);
     }
 }

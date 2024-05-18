@@ -68,6 +68,7 @@ namespace E_CommerceFurnitureBackend.DbCo
         public DbSet<Order> Order {  get; set;}
         public DbSet<Category> Categories { get; set;}
         public DbSet<Types> Types { get; set;}
+        public DbSet<WishList> WishLists { get; set;}
 
     }
 }

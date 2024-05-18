@@ -1,6 +1,6 @@
 using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Mapper;
-using E_CommerceFurnitureBackend.Services.CartServices;
+//using E_CommerceFurnitureBackend.Services.CartServices;
 using E_CommerceFurnitureBackend.Services.ProductServices;
 using E_CommerceFurnitureBackend.Services.UserServices;
 
@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddSingleton<IProductServices, ProductServices>();
-builder.Services.AddSingleton<ICartServices,CartServices>();
+///builder.Services.AddSingleton<ICartServices,CartServices>();
 builder.Services.AddSingleton<IUserServices,UserServices>();
 builder.Services.AddSingleton<UserDbContext>();
 builder.Services.AddAutoMapper(typeof(Mappers));

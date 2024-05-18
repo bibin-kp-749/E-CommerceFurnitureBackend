@@ -82,5 +82,14 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             _userDbContext.SaveChanges();
             return true;
         }
+        public async Task<Boolean> AddNewCategory(CategoryDto category)
+        {
+            if (category == null)
+                return false;
+            var data = _mapper.Map<Category>(category);
+            var response = await _userDbContext.Categories.AddAsync(data);
+            await _userDbContext.SaveChangesAsync();
+            return true;
+        }
     }
 }

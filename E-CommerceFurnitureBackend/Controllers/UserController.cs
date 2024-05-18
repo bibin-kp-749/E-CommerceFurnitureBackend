@@ -17,7 +17,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             this._userServices = userServices;
         }
         [HttpPost("RegisterUser")]
-        public async Task<IActionResult> RegisterUser(UserDto userDto)
+        public async Task<IActionResult> SignUp(UserDto userDto)
         {
             try
             {
@@ -25,20 +25,16 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return BadRequest("Please Fill all The Fields");
                 var response=await _userServices.RegisterUser(userDto);
                 if (response)
-                    return StatusCode(204,"Registered Successfully");
+                    return Ok("Registered Successfully");
                 else
                     return StatusCode(500,"Registration Failed Please Retry");
-            }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpGet("GetAllUser")]
+        [HttpGet("get-all")]
         public async Task<IActionResult> ViewAllUsers()
         {
             try
@@ -48,16 +44,12 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return NotFound("Users Not found");
                 return Ok(response);
             }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
-            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpGet("GetUserById")]
+        [HttpGet(":id")]
         public async Task<IActionResult> ViewUserById(int Id)
         {
             try
@@ -69,17 +61,13 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return NotFound("User Not Found");
                 return Ok(response);
             }
-            catch (DbUpdateException ex)
-            {
-                return StatusCode(500, $"An error occured while accessing the database : {ex.Message}");
-            }
             catch (Exception ex)
             {
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPost("LoginUser")]
-        public async Task<IActionResult> LoginUser(LoginDto user)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginDto user)
         {
             try
             {
@@ -87,8 +75,59 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return BadRequest("Please fill all the fields");
                 var response= await _userServices.LoginUser(user);
                 if (response)
-                    return StatusCode(204, "Login successfully");
+                    return Ok("Login successfully");
                 return StatusCode(404,"User not found");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpPost("api/admin/login")]
+        public async Task<IActionResult> AdminLogin(LoginDto user)
+        {
+            try
+            {
+                if (user.Email == null || user.Password == null)
+                    return BadRequest("Please fill all the fields");
+                var response = await _userServices.LoginUser(user);
+                if (response)
+                    return Ok("Login successfully");
+                return StatusCode(404, "User not found");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpPut("block/:id")]
+        public async Task<IActionResult> BlockUser(int id)
+        {
+            try
+            {
+                if (id == 0 || id == null)
+                    return BadRequest("Id canot contain null or zero");
+                var response = await _userServices.BlockUser(id);
+                if (!response)
+                    return NotFound("User not found");
+                return Ok("Success");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
+        [HttpPut("unblock/:id")]
+        public async Task<IActionResult> UnBlockUser(int id)
+        {
+            try
+            {
+                if (id == 0 || id == null)
+                    return BadRequest("Id canot contain null or zero");
+                var response = await _userServices.UnBlockUser(id);
+                if (!response)
+                    return NotFound("User not found");
+                return Ok("Success");
             }
             catch (Exception ex)
             {
