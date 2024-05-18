@@ -4,7 +4,11 @@ using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Models;
 using E_CommerceFurnitureBackend.Models.DTO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Data.Common;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace E_CommerceFurnitureBackend.Services.UserServices
 {
@@ -12,10 +16,12 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
     {
         private readonly UserDbContext _userDbContext;
         private readonly IMapper _mapper;
-        public UserServices(UserDbContext userDbContext,IMapper mapper)
+        private readonly IConfiguration _configuration;
+        public UserServices(UserDbContext userDbContext,IMapper mapper,IConfiguration configuration)
         {
             this._userDbContext = userDbContext;
             this._mapper = mapper;
+            this._configuration = configuration;
         }
         public async Task<Boolean> RegisterUser(UserDto userDto)
         {
@@ -48,13 +54,37 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
                 return null;
             return _mapper.Map<UserDto>(user);
         }
-        public async Task<Boolean> LoginUser(LoginDto user)
+        public async Task<string> LoginUser(LoginDto user)
         {
-            var data=await _userDbContext.Users.FirstOrDefaultAsync(u=>u.Email==user.Email);
-            var passsword = BCrypt.Net.BCrypt.EnhancedVerify(user.Password, data.Password, HashType.SHA256);
-            if(passsword)
-                return true;
-            return false;
+            try
+            {
+                var data = await _userDbContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
+                var passsword = BCrypt.Net.BCrypt.EnhancedVerify(user.Password, data.Password, HashType.SHA256);
+                if (passsword && data!=null)
+                {
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var key = Encoding.ASCII.GetBytes(_configuration["JwtConfig:Key"]);
+                    var tokenDescriptor = new SecurityTokenDescriptor
+                    {
+                        Subject=new ClaimsIdentity(new Claim[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier,data.UserId.ToString()),
+                            new Claim(ClaimTypes.Name,data.UserName),
+                            new Claim(ClaimTypes.Role,data.Role),
+                        }),
+                        Expires = DateTime.UtcNow.AddMinutes(10),
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    };
+                    var token=tokenHandler.CreateToken(tokenDescriptor);
+                    var tokenString=tokenHandler.WriteToken(token);
+                    return tokenString;
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         public async Task<Boolean> BlockUser(int id)
         {
