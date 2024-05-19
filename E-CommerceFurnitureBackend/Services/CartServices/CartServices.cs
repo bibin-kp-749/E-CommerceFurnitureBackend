@@ -46,12 +46,24 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
                 return false;
             }
         }
-        public async Task<Boolean> GetItemsInCart(string token)
+        public async Task<List<ProductDto>> GetItemsInCart(string token)
         {
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var SecurityToken=handler.ReadToken
+                var SecurityToken = handler.ReadJwtToken(token);
+                var claim = SecurityToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+                var userId = Convert.ToInt32(claim);
+                var data = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
+                if (data == null)
+                    return null;
+                var cartItems =await  _userDbContext.CartItems.Where(c=>c.CartId==data.CartId).Include(p=>p.Product).ToListAsync();
+                var products= cartItems.Select(p=>p.Product).ToList();
+            return _mapper.Map<List<ProductDto>>(products);
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
         }
     }

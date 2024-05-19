@@ -5,5 +5,6 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
     public interface IWishListServices
     {
         Task<Boolean> AddWishList(string token ,int ProdctId);
+        Task<List<ProductDto>> GetItemsInWishList(string token);
     }
 }

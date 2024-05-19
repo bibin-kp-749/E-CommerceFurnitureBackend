@@ -69,19 +69,19 @@ namespace E_CommerceFurnitureBackend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto user)
         {
-            //try
-            //{
+            try
+            {
                 if (user.Email == null || user.Password == null)
                     return BadRequest("Please fill all the fields");
                 var response= await _userServices.LoginUser(user);
                 if (response!=null)
                     return Ok(response);
                 return StatusCode(404,"User not found");
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
-            //}
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
         }
         [HttpPost("api/admin/login")]
         public async Task<IActionResult> AdminLogin(LoginDto user)

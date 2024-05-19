@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
-    [Route("api/product")]
+    [Route("api/product/wishlist")]
     [ApiController]
     public class WishListController : ControllerBase
     {
@@ -14,7 +14,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             this._services = wishListServices;
         }
-        [HttpPost("wishlist/:id")]
+        [HttpPost(":id")]
         public async Task<IActionResult> AddWishList(string token, int ProdctId)
         {
             try
@@ -28,6 +28,23 @@ namespace E_CommerceFurnitureBackend.Controllers
             }catch (Exception ex)
             {
                 return StatusCode(500,"Something went wrong");
+            }
+        }
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetItemsInWishList(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return BadRequest();
+                var response = await _services.GetItemsInWishList(token);
+                if (response!=null)
+                    return Ok(response);
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Something went wrong");
             }
         }
     }

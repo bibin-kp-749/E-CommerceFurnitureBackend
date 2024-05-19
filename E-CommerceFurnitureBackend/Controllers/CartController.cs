@@ -32,5 +32,22 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        [HttpGet("get-all")]
+        public async Task<IActionResult> GetItemsInCart(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                    return BadRequest();
+                var response = await cartServices.GetItemsInCart(token);
+                if (response == null)
+                    return NotFound();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }
