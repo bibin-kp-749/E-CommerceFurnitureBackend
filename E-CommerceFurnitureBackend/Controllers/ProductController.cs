@@ -147,18 +147,24 @@ namespace E_CommerceFurnitureBackend.Controllers
         [HttpGet(":searchString")]
         public async Task<IActionResult> SearchProduct(string searchItem)
         {
-            //try
-            //{
+            try
+            {
                 if (string.IsNullOrEmpty(searchItem))
                     return BadRequest();
                 var response=await _productServices.SearchProduct(searchItem);
                 if (response == null)
                     return NotFound();
                 return Ok(response);
-            //}catch (Exception ex)
-            //{
-            //    return StatusCode(500,"jii");
-            //}
+            }catch (Exception ex)
+            {
+                return StatusCode(500,"jii");
+            }
         }
+        [HttpGet("paginated")]
+        public async Task<IActionResult> GetProductByPaginated(int PageNumber=1, int PageSize=10)
+        {
+            return Ok(_productServices.GetProductByPaginated(PageNumber, PageSize).Result);
+        }
+
     }
 }

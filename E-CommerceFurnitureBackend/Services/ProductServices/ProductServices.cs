@@ -98,5 +98,14 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                return null;
             return _mapper.Map<List<ProductDto>>(product);      
         }
+        public async Task<List<ProductDto>> GetProductByPaginated(int PageNumber=1,int PageSize=10)
+        {
+            var totalCount = _userDbContext.Products.Count();
+            var totalPage =(int)Math.Ceiling((decimal)totalCount / PageSize);
+            var productsPerPage = _userDbContext.Products
+                .Skip((PageNumber - 1) * PageSize)
+                .Take(PageSize);
+            return _mapper.Map<List<ProductDto>>(productsPerPage);
+        }
     }
 }

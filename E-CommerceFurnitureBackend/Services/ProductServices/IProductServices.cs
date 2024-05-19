@@ -13,5 +13,7 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
         Task<Boolean> UpdateProduct(int Id, ProductDto product);
         Task<Boolean> AddNewCategory(CategoryDto category);
         Task<List<ProductDto>> SearchProduct(string searchItem);
+        Task<List<ProductDto>> GetProductByPaginated(int PageNumber, int PageSize);
+
     }
 }
