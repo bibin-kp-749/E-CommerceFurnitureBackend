@@ -46,5 +46,20 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
                 return null;
             }
         }
+        public async Task<Boolean> DeleteTheWishListItem(int productId,string token)
+        {
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var SecurityToken = handler.ReadJwtToken(token);
+                var userId = SecurityToken.Claims.FirstOrDefault(s => s.Type == "nameid")?.Value;
+                var data = _userDbContext.WishLists.Where(p => p.UserId == Convert.ToInt32(userId) && p.ProductId == productId).ExecuteDeleteAsync();
+                await _userDbContext.SaveChangesAsync();
+                return true;
+            } catch (Exception ex)
+            {
+                return false;
+            }
+        }
     }
 }

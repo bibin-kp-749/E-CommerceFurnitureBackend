@@ -91,5 +91,12 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             await _userDbContext.SaveChangesAsync();
             return true;
         }
+        public async Task<List<ProductDto>> SearchProduct(string searchItem)
+        {
+            var product= _userDbContext.Products.Where(s=>s.ProductName.Contains(searchItem));
+            if (product == null)
+               return null;
+            return _mapper.Map<List<ProductDto>>(product);      
+        }
     }
 }

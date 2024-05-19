@@ -47,5 +47,21 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, "Something went wrong");
             }
         }
+        [HttpDelete(":itemId")]
+        public async Task<IActionResult> DeleteTheWishListItem(int productId, string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token)||productId==0||productId==null)
+                    return BadRequest();
+                var response=await _services.DeleteTheWishListItem(productId, token);
+                if(response)
+                return Ok();
+                return NotFound();
+            }catch(Exception ex)
+            {
+                return StatusCode(500);
+            }
+        }
     }
 }

@@ -144,5 +144,21 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
+        [HttpGet(":searchString")]
+        public async Task<IActionResult> SearchProduct(string searchItem)
+        {
+            //try
+            //{
+                if (string.IsNullOrEmpty(searchItem))
+                    return BadRequest();
+                var response=await _productServices.SearchProduct(searchItem);
+                if (response == null)
+                    return NotFound();
+                return Ok(response);
+            //}catch (Exception ex)
+            //{
+            //    return StatusCode(500,"jii");
+            //}
+        }
     }
 }

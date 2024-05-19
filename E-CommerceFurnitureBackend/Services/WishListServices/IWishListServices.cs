@@ -6,5 +6,6 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
     {
         Task<Boolean> AddWishList(string token ,int ProdctId);
         Task<List<ProductDto>> GetItemsInWishList(string token);
+        Task<Boolean> DeleteTheWishListItem(int productId, string token);
     }
 }
