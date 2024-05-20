@@ -2,6 +2,7 @@
 using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Models;
 using E_CommerceFurnitureBackend.Models.DTO;
+using E_CommerceFurnitureBackend.Services.JwtServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,24 +13,23 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
     {
         private readonly UserDbContext _userDbContext;
         private readonly IMapper _mapper;
-        public CartServices(IMapper mapper,UserDbContext userDbContext)
+        private readonly IJwtServices _jwtServices;
+        public CartServices(IMapper mapper,UserDbContext userDbContext,IJwtServices jwtServices)
         {
             this._mapper = mapper;
             this._userDbContext = userDbContext;
+            this._jwtServices = jwtServices;
         }
         public async Task<Boolean> AddProductToCartItem(string token,int productId)
         {
             try
             {
-                //var handler = new JwtSecurityTokenHandler();
-                //var SecurityToken=handler.ReadJwtToken(token);
-                //var claim = SecurityToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-                //var userId = Convert.ToInt32(claim);
-                var userId=
+                var response=await _jwtServices.GetUserIdFromToken(token);
+                var userId = Convert.ToInt32(response);
                 var data = _userDbContext.Cart.FirstOrDefault(c => c.UserId == userId);
                 if (data != null)
                 {
-                    _userDbContext.CartItems.Add(new CartItems { CartId = data.CartId, ProductId = productId });
+                    await _userDbContext.CartItems.AddAsync(new CartItems { CartId = data.CartId, ProductId = productId });
                     await _userDbContext.SaveChangesAsync();
                     return true;
                 }
@@ -51,10 +51,8 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
         {
             try
             {
-                var handler = new JwtSecurityTokenHandler();
-                var SecurityToken = handler.ReadJwtToken(token);
-                var claim = SecurityToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-                var userId = Convert.ToInt32(claim);
+                var response = await _jwtServices.GetUserIdFromToken(token);
+                var userId = Convert.ToInt32(response);
                 var data = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
                 if (data == null)
                     return null;

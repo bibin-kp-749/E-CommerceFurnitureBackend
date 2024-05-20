@@ -22,7 +22,7 @@ builder.Services.AddSingleton<IUserServices,UserServices>();
 builder.Services.AddSingleton<UserDbContext>();
 builder.Services.AddAutoMapper(typeof(Mappers));
 builder.Services.AddSingleton<IOrderServices,OrderServices>();
-builder.Services.AddSingleton<IJwtServices,IJwtServices>();
+builder.Services.AddSingleton<IJwtServices,JwtServices>();
 builder.Services.AddHttpContextAccessor();
 
 //--------------

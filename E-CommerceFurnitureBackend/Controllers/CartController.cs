@@ -19,18 +19,18 @@ namespace E_CommerceFurnitureBackend.Controllers
         [HttpPost("cart/:productId")]
         public async Task<IActionResult> AddProductToCart(string token,int productId)
         {
-            try
-            {
+            //try
+            //{
                 if (token.Length < 1 || productId == null)
                     return BadRequest();
                 var response = await cartServices.AddProductToCartItem(token, productId);
                 if (response)
                     return Ok();
-                return StatusCode(500, "Internal server error");
-            }catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+                return StatusCode(500, "Internal server error kk");
+            //}catch (Exception ex)
+            //{
+            //    return StatusCode(500, ex.Message);
+            //}
         }
         [HttpGet("get-all")]
         public async Task<IActionResult> GetItemsInCart(string token)
