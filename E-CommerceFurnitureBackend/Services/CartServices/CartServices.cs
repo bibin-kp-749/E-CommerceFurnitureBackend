@@ -21,10 +21,11 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
         {
             try
             {
-                var handler = new JwtSecurityTokenHandler();
-                var SecurityToken=handler.ReadJwtToken(token);
-                var claim = SecurityToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-                var userId = Convert.ToInt32(claim);
+                //var handler = new JwtSecurityTokenHandler();
+                //var SecurityToken=handler.ReadJwtToken(token);
+                //var claim = SecurityToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+                //var userId = Convert.ToInt32(claim);
+                var userId=
                 var data = _userDbContext.Cart.FirstOrDefault(c => c.UserId == userId);
                 if (data != null)
                 {

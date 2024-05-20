@@ -1,6 +1,8 @@
 using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Mapper;
 using E_CommerceFurnitureBackend.Services.CartServices;
+using E_CommerceFurnitureBackend.Services.JwtServices;
+using E_CommerceFurnitureBackend.Services.OrderServices;
 using E_CommerceFurnitureBackend.Services.ProductServices;
 using E_CommerceFurnitureBackend.Services.UserServices;
 using E_CommerceFurnitureBackend.Services.WishListServices;
@@ -19,6 +21,10 @@ builder.Services.AddSingleton<ICartServices,CartServices>();
 builder.Services.AddSingleton<IUserServices,UserServices>();
 builder.Services.AddSingleton<UserDbContext>();
 builder.Services.AddAutoMapper(typeof(Mappers));
+builder.Services.AddSingleton<IOrderServices,OrderServices>();
+builder.Services.AddSingleton<IJwtServices,IJwtServices>();
+builder.Services.AddHttpContextAccessor();
+
 //--------------
 builder.Services.AddAuthentication(options =>
 {
