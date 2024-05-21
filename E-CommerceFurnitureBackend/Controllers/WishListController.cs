@@ -1,5 +1,6 @@
 ﻿using E_CommerceFurnitureBackend.Models.DTO;
 using E_CommerceFurnitureBackend.Services.WishListServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,8 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             this._services = wishListServices;
         }
-        [HttpPost(":id")]
+        [HttpPost("AddWishList")]
+        [Authorize]
         public async Task<IActionResult> AddWishList(string token, int ProdctId)
         {
             try
@@ -31,6 +33,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("get-all")]
+        [Authorize]
         public async Task<IActionResult> GetItemsInWishList(string token)
         {
             try
@@ -47,14 +50,15 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An unexpected error is occure{ex.Message}");
             }
         }
-        [HttpDelete(":itemId")]
-        public async Task<IActionResult> DeleteTheWishListItem(int productId, string token)
+        [HttpDelete("{itemId}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteTheWishListItem(int itemId, string token)
         {
             try
             {
-                if (string.IsNullOrEmpty(token)||productId==0||productId==null)
+                if (string.IsNullOrEmpty(token)|| itemId == 0|| itemId == null)
                     return BadRequest();
-                var response=await _services.DeleteTheWishListItem(productId, token);
+                var response=await _services.DeleteTheWishListItem(itemId, token);
                 if(response)
                 return Ok("success");
                 return NotFound("Item not found");

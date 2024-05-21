@@ -7,6 +7,9 @@ namespace E_CommerceFurnitureBackend.Services.OrderServices
     {
          Task<MerchantOrder> GenerateOrder(PaymentDto payment);
          Task<string> CapturePayment(IHttpContextAccessor _httpContextAccessor);
-        Task<List<OrderDto>> OrderDetails(string token);
+         Task<List<OrderDto>> OrderDetails(string token);
+         Task<List<OrderDto>> OrderDetailsAdmin(int userId);
+         Task<decimal> Totalrevenuegenerated();
+         Task<int> Totalproductspurchased();
     }
 }

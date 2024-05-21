@@ -36,6 +36,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("get-all")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ViewAllUsers()
         {
             try
@@ -50,7 +51,8 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpGet(":id")]
+        [HttpGet("ViewUserById")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ViewUserById(int userId)
         {
             try
@@ -84,7 +86,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPost("api/admin/login")]
+        [HttpPost("admin/login")]
         public async Task<IActionResult> AdminLogin(LoginDto admin)
         {
             try
@@ -101,8 +103,8 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPut("block/{id}")]
-        [Authorize("Roles=admin")]
+        [HttpPut("blockUser")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> BlockUser(int id)
         {
             try
@@ -119,7 +121,8 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPut("unblock/:id")]
+        [HttpPut("unblockUser")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UnBlockUser(int id)
         {
             try

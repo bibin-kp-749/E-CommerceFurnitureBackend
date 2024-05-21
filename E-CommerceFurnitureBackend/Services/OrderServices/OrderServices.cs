@@ -154,5 +154,15 @@ namespace E_CommerceFurnitureBackend.Services.OrderServices
             }
             return details;
         }
+        public async Task<int> Totalproductspurchased()
+        {
+            var total =await _userDbContext.OrderItems.SumAsync(s=>s.Quantity);
+            return total;
+        }
+        public async Task<decimal> Totalrevenuegenerated()
+        {
+            var Totalrevenue=await _userDbContext.OrderItems.SumAsync(x=>x.Price);
+            return Totalrevenue;
+        }
     }
 }

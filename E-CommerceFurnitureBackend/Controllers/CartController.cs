@@ -4,6 +4,7 @@ using E_CommerceFurnitureBackend.Services.CartServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
@@ -17,6 +18,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             this.cartServices = cartServices;
         }
         [HttpPost("cart/:productId")]
+        [Authorize]
         public async Task<IActionResult> AddProductToCart(string token,int productId)
         {
             try
@@ -34,6 +36,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("get-all")]
+        [Authorize]
         public async Task<IActionResult> GetItemsInCart(string token)
         {
             try

@@ -1,6 +1,7 @@
 ﻿using E_CommerceFurnitureBackend.Models;
 using E_CommerceFurnitureBackend.Models.DTO;
 using E_CommerceFurnitureBackend.Services.ProductServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,14 +17,14 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             this._productServices = productServices;
         }
-        [HttpGet("/:ProductId")]
-        public async Task<IActionResult> GetProductById(int id)
+        [HttpGet("{ProductId}")]
+        public async Task<IActionResult> GetProductById(int ProductId)
         {
             try
             {
-                if (id == 0 || id==null)
+                if (ProductId == 0 )
                     return BadRequest("Id can not contain zero or Null value");
-                var product = await _productServices.ViewProductById(id);
+                var product = await _productServices.ViewProductById(ProductId);
                 if (product.ProductName == null)
                     return NotFound("Product Not Found"); 
                 return Ok(product);                    
@@ -34,7 +35,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
 
         }
-        [HttpGet("/:productcategory")]
+        [HttpGet("{category}")]
         public async Task<IActionResult> ViewProductByCategory(string category)
         {
             try
@@ -52,6 +53,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("add-product")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProduct(ProductDto product)
         {
             try
@@ -70,6 +72,7 @@ namespace E_CommerceFurnitureBackend.Controllers
 
         }
         [HttpPut("update-product")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int produtId, ProductDto product)
         {
             try
@@ -85,11 +88,12 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpDelete("delete-product")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int Id)
         {
             try
             {
-                if (Id == null || Id == 0)
+                if ( Id == 0)
                     return BadRequest("Id can not contain zero or Null value");
                 var response =await _productServices.DeleteProduct(Id);
                 if (!response)
@@ -117,7 +121,8 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500,$"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPost("category")]
+        [HttpPost("{category}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddNewCategory(CategoryDto category)
         {
             try
@@ -134,7 +139,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpGet(":searchString")]
+        [HttpGet("{searchItem}")]
         public async Task<IActionResult> SearchProduct(string searchItem)
         {
             try

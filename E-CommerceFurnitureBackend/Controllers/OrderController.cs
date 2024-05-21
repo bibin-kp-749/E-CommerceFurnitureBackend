@@ -1,5 +1,6 @@
 ﻿using E_CommerceFurnitureBackend.Models.DTO;
 using E_CommerceFurnitureBackend.Services.OrderServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
@@ -17,13 +18,15 @@ namespace E_CommerceFurnitureBackend.Controllers
             this._orderServices = orderServices;
             this._contextAccessor = httpContextAccessor;
         }
-        [HttpPost]
+        [HttpPost("GenerateOrder")]
+        [Authorize]
         public async Task<IActionResult> GenerateOrder(PaymentDto payment )
         {
             var response=await _orderServices.GenerateOrder(payment);
             return Ok(response);
         }
-        [HttpPost("hi")]
+        [HttpPost("CapturePayment")]
+        [Authorize]
         public async Task<IActionResult> CapturePayment()
         {
             try
@@ -45,18 +48,70 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        [HttpPost("OrderDetails")]
+        [HttpPost("OrderDetailsOfUser")]
+        [Authorize]
         public async Task<IActionResult> OrderDetails(string token)
         {
             try
             {
-                if (token.Length < 1)
+                if (token.Length < 1||token==null)
                     return BadRequest();
                 var response = await _orderServices.OrderDetails(token);
+                if(response.Count== 0)
+                    return Ok("Not conain data");
                 return Ok(response);
             }catch (Exception ex)
             {
                 return StatusCode(500,ex.Message);
+            }
+        }
+        [HttpPost("OrderDetailsByAdmin")]
+        [Authorize(Roles ="Admin")]
+        public async Task<IActionResult> OrderDetailsAdmin(int userId)
+        {
+            try
+            {
+                if (userId < 1)
+                    return BadRequest();
+                var response = await _orderServices.OrderDetailsAdmin(userId);
+                if (response.Count== 0)
+                    return Ok("Not contain data");
+                return Ok(response);
+            }catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+        }
+        [HttpGet("TotalProductsPurchased")]
+        [Authorize(Roles = "Admin")]
+
+        public async Task<IActionResult> Totalproductspurchased()
+        {
+            try
+            {
+                var response = await _orderServices.Totalproductspurchased();
+                if (response < 1)
+                    return StatusCode(404);
+                return Ok(response);
+            }catch(Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+        }
+        [HttpGet("Totalrevenuegenerated")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Totalrevenuegenerated()
+        {
+            try
+            {
+                var response = await _orderServices.Totalrevenuegenerated();
+                if (response < 1)
+                    return StatusCode(404);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }

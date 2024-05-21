@@ -16,7 +16,7 @@ namespace E_CommerceFurnitureBackend.Models
         [Required]
         public string Password { get; set; }
         public bool Isstatus { get; set; } = true;
-        public string Role { get; set; } = "User";
+        public string Role { get; set; } = "Admin";
         public virtual Cart Cart { get; set; }
         public virtual List<Order> Order { get; set; }
         public virtual List<WishList> WhishLists { get; set; }
