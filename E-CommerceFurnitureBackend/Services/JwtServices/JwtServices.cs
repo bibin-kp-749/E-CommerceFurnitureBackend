@@ -21,8 +21,8 @@ namespace E_CommerceFurnitureBackend.Services.JwtServices
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secreteKey)),
             };
-            //try
-            //{
+            try
+            {
                 var tokenhandler = new JwtSecurityTokenHandler();
                 var response = tokenhandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
                 if (validatedToken is not JwtSecurityToken jwtToken)
@@ -32,10 +32,10 @@ namespace E_CommerceFurnitureBackend.Services.JwtServices
                 if (claim is null)
                     throw new SecurityTokenException("Id not Found");
                 return Convert.ToInt32(claim);
-            //}catch (Exception ex)
-            //{
-            //    throw new Exception("Something Went wrong");
-            //}
+            }catch (Exception ex)
+            {
+                throw new Exception($"Something Went wrong{ex.Message}");
+            }
         }
     }
 }

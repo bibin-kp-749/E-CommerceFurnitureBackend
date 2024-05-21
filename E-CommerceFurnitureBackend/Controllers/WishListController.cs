@@ -19,15 +19,15 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (ProdctId == 0 || ProdctId == null || token.Length < 30)
-                    return BadRequest();
+                if (ProdctId == 0 || ProdctId == null || token.Length < 1)
+                    return BadRequest("Please fill all the fields");
                var response=await _services.AddWishList(token,ProdctId);
                 if(response)
                     return Ok(response);
-                return StatusCode(500, "Internal Server Error");
+                return StatusCode(409,"Item already Present");
             }catch (Exception ex)
             {
-                return StatusCode(500,"Something went wrong");
+                return StatusCode(500,$"An unexpected error is occure{ex.Message}");
             }
         }
         [HttpGet("get-all")]
@@ -38,13 +38,13 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if (string.IsNullOrEmpty(token))
                     return BadRequest();
                 var response = await _services.GetItemsInWishList(token);
-                if (response!=null)
-                    return Ok(response);
-                return NotFound();
+                if (response.Count < 1)
+                    return NotFound();
+                return Ok(response);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Something went wrong");
+                return StatusCode(500, $"An unexpected error is occure{ex.Message}");
             }
         }
         [HttpDelete(":itemId")]
@@ -56,11 +56,11 @@ namespace E_CommerceFurnitureBackend.Controllers
                     return BadRequest();
                 var response=await _services.DeleteTheWishListItem(productId, token);
                 if(response)
-                return Ok();
-                return NotFound();
+                return Ok("success");
+                return NotFound("Item not found");
             }catch(Exception ex)
             {
-                return StatusCode(500);
+                return StatusCode(500,$"An unexpected error occured {ex.Message}");
             }
         }
     }

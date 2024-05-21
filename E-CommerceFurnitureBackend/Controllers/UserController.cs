@@ -1,8 +1,10 @@
 ﻿using E_CommerceFurnitureBackend.Models.DTO;
 using E_CommerceFurnitureBackend.Services.UserServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
 
 namespace E_CommerceFurnitureBackend.Controllers
@@ -21,13 +23,12 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-            if (userDto==null)
-                return BadRequest("Please Fill all The Fields");
+                if (userDto==null||string.IsNullOrEmpty(userDto.Email) || string.IsNullOrEmpty(userDto.Password))
+                    return BadRequest("Please Fill all The Fields");
                 var response=await _userServices.RegisterUser(userDto);
-                if (response)
-                    return Ok("Registered Successfully");
-                else
-                    return StatusCode(500,"Registration Failed Please Retry");
+                if (!response)
+                    return StatusCode(409,"Conflict: The email address is already in use.");
+                return Ok("Registered Successfully");        
             }
             catch (Exception ex)
             {
@@ -50,13 +51,13 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet(":id")]
-        public async Task<IActionResult> ViewUserById(int Id)
+        public async Task<IActionResult> ViewUserById(int userId)
         {
             try
             {
-                if (Id == 0 || Id == null)
+                if (userId==0||userId==null)
                     return BadRequest("Id can not contain zero or Null value");
-                var response= await _userServices.ViewUserById(Id);
+                var response= await _userServices.ViewUserById(userId);
                 if (response == null)
                     return NotFound("User Not Found");
                 return Ok(response);
@@ -71,7 +72,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (user.Email == null || user.Password == null)
+                if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
                     return BadRequest("Please fill all the fields");
                 var response= await _userServices.LoginUser(user);
                 if (response!=null)
@@ -84,13 +85,13 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("api/admin/login")]
-        public async Task<IActionResult> AdminLogin(LoginDto user)
+        public async Task<IActionResult> AdminLogin(LoginDto admin)
         {
             try
             {
-                if (user.Email == null || user.Password == null)
+                if (string.IsNullOrEmpty(admin.Email) || string.IsNullOrEmpty(admin.Password))
                     return BadRequest("Please fill all the fields");
-                var response = await _userServices.LoginUser(user);
+                var response = await _userServices.LoginUser(admin);
                 if (response!= null)
                     return Ok(response);
                 return StatusCode(404, "User not found");
@@ -100,7 +101,8 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPut("block/:id")]
+        [HttpPut("block/{id}")]
+        [Authorize("Roles=admin")]
         public async Task<IActionResult> BlockUser(int id)
         {
             try
@@ -134,6 +136,5 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-
     }
 }

@@ -45,7 +45,20 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-
+        [HttpPost("OrderDetails")]
+        public async Task<IActionResult> OrderDetails(string token)
+        {
+            try
+            {
+                if (token.Length < 1)
+                    return BadRequest();
+                var response = await _orderServices.OrderDetails(token);
+                return Ok(response);
+            }catch (Exception ex)
+            {
+                return StatusCode(500,ex.Message);
+            }
+        }
     }
 
 }

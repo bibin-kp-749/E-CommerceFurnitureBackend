@@ -7,11 +7,11 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
     {
         Task<ProductDto> ViewProductById(int productId);
         Task<List<ProductDto>> ViewProductByCategory(string category);
-        Task<Boolean> CreateProduct(ProductDto product);
-        Task<Boolean> DeleteProduct(int Id);
+        Task<bool> CreateProduct(ProductDto product);
+        Task<bool> DeleteProduct(int Id);
         Task<List<ProductDto>> ViewAllProducts();
-        Task<Boolean> UpdateProduct(int Id, ProductDto product);
-        Task<Boolean> AddNewCategory(CategoryDto category);
+        Task<bool> UpdateProduct(int Id, ProductDto product);
+        Task<bool> AddNewCategory(CategoryDto category);
         Task<List<ProductDto>> SearchProduct(string searchItem);
         Task<List<ProductDto>> GetProductByPaginated(int PageNumber, int PageSize);
 

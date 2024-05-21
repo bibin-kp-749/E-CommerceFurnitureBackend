@@ -21,15 +21,12 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (id != 0 || id!=null) {
-                    var product = await _productServices.ViewProductById(id);
-                    if (product != null)
-                    {
-                        return Ok(product);
-                    }
-                    return NotFound("Product Not Found");
-                }else 
-                    return BadRequest("Id can not contain zero or Null value"); 
+                if (id == 0 || id==null)
+                    return BadRequest("Id can not contain zero or Null value");
+                var product = await _productServices.ViewProductById(id);
+                if (product.ProductName == null)
+                    return NotFound("Product Not Found"); 
+                return Ok(product);                    
             }
             catch (Exception ex)
             {
@@ -42,15 +39,12 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if(category != null||category!= "^\\s+")
-                {
-                    var product = await _productServices.ViewProductByCategory(category);
-                    if (product != null)
-                        return Ok(product);
-                    return NotFound("Product Not Found");
-                }
-                else
+                if(category == null||category== "^\\s+")
                     return BadRequest("category field is required");
+                var product = await _productServices.ViewProductByCategory(category);
+                if (product == null)
+                    return NotFound("Product Not Found");       
+                    return Ok(product);
             }
             catch (Exception ex)
             {
@@ -62,15 +56,12 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (product!= null)
-                {
+                if (product == null)
+                    return BadRequest("Please fill all the fields");
                     var data=await _productServices.CreateProduct(product);
-                    if (data)
-                        return Ok("Updated Successfully");
-                    else
+                    if (!data)
                         return StatusCode(409,"Product Already existed");
-                }
-                return BadRequest("Please fill all the fields");
+                return Ok("Updated Successfully");
             }
             catch (Exception ex)
             {
@@ -79,11 +70,11 @@ namespace E_CommerceFurnitureBackend.Controllers
 
         }
         [HttpPut("update-product")]
-        public async Task<IActionResult> UpdateProduct(int Id, ProductDto product)
+        public async Task<IActionResult> UpdateProduct(int produtId, ProductDto product)
         {
             try
             {
-                var response = await _productServices.UpdateProduct(Id, product);
+                var response = await _productServices.UpdateProduct(produtId, product);
                 if (response)
                     return Ok("Successfully Updated");
                 return NotFound("Item not found");
@@ -101,10 +92,9 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if (Id == null || Id == 0)
                     return BadRequest("Id can not contain zero or Null value");
                 var response =await _productServices.DeleteProduct(Id);
-                if (response)
-                    return Ok("Product Removed successfully");
-                else
-                    return BadRequest("Product does not exist please Check your Id");
+                if (!response)
+                    return BadRequest("Item not found");
+                return Ok("Product Removed successfully");
             }
             catch (Exception ex)
             {
@@ -118,7 +108,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             try
             {
                 var response =await _productServices.ViewAllProducts();
-                if(response==null)
+                if(response.Count==0)
                     return BadRequest("Products Not found");
                 return Ok(response);
             }
@@ -137,7 +127,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 var response = await _productServices.AddNewCategory(category);
                 if (response)
                     return StatusCode(201, "Successfully created product");
-                return StatusCode(500, "Internal server error ");
+                return StatusCode(409, "Category Already existed");
             }
             catch (Exception ex)
             {
@@ -152,18 +142,24 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if (string.IsNullOrEmpty(searchItem))
                     return BadRequest();
                 var response=await _productServices.SearchProduct(searchItem);
-                if (response == null)
-                    return NotFound();
+                if (response.Count<1)
+                    return NotFound("Item Not Found");
                 return Ok(response);
             }catch (Exception ex)
             {
-                return StatusCode(500,"jii");
+                return StatusCode(500,$"An unexpected error occured {ex.Message}");
             }
         }
         [HttpGet("paginated")]
-        public async Task<IActionResult> GetProductByPaginated(int PageNumber=1, int PageSize=10)
+        public async Task<IActionResult> GetProductByPaginated(int PageNumber, int PageSize)
         {
-            return Ok(_productServices.GetProductByPaginated(PageNumber, PageSize).Result);
+            try
+            {
+                return Ok(_productServices.GetProductByPaginated(PageNumber, PageSize).Result);
+            }catch(Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occured {ex.Message}");
+            }
         }
 
     }

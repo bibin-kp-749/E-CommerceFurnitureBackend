@@ -20,12 +20,14 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             this._userDbContext = userDbContext;
             this._jwtServices = jwtServices;
         }
-        public async Task<Boolean> AddProductToCartItem(string token,int productId)
+        public async Task<bool> AddProductToCartItem(string token,int productId)
         {
             try
             {
                 var response=await _jwtServices.GetUserIdFromToken(token);
                 var userId = Convert.ToInt32(response);
+                if(userId ==null) 
+                    return false;
                 var data = _userDbContext.Cart.FirstOrDefault(c => c.UserId == userId);
                 if (data != null)
                 {
@@ -44,7 +46,7 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             }
             catch (Exception ex)
             {
-                return false;
+                throw new Exception($"Internal Server error occured {ex.Message}");
             }
         }
         public async Task<List<ProductDto>> GetItemsInCart(string token)
@@ -55,14 +57,14 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
                 var userId = Convert.ToInt32(response);
                 var data = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
                 if (data == null)
-                    return null;
+                    return new List<ProductDto>();
                 var cartItems =await  _userDbContext.CartItems.Where(c=>c.CartId==data.CartId).Include(p=>p.Product).ToListAsync();
                 var products= cartItems.Select(p=>p.Product).ToList();
             return _mapper.Map<List<ProductDto>>(products);
             }
             catch (Exception ex)
             {
-                return null;
+                throw new Exception("Internal server error");
             }
         }
     }

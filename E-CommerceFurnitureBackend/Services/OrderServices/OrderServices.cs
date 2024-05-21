@@ -1,4 +1,9 @@
-﻿using E_CommerceFurnitureBackend.Models.DTO;
+﻿using E_CommerceFurnitureBackend.DbCo;
+using E_CommerceFurnitureBackend.Models;
+using E_CommerceFurnitureBackend.Models.DTO;
+using E_CommerceFurnitureBackend.Services.JwtServices;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using Razorpay.Api;
 
@@ -9,11 +14,15 @@ namespace E_CommerceFurnitureBackend.Services.OrderServices
         private readonly IConfiguration _configuration;
         private readonly string key;
         private readonly string Secret;
-        public OrderServices(IConfiguration configuration)
+        private readonly IJwtServices _jwtService;
+        private readonly UserDbContext _userDbContext;
+        public OrderServices(IConfiguration configuration,IJwtServices jwtServices,UserDbContext userDbContext)
         {
             this._configuration = configuration;
             this.key = _configuration["Razorpay:Key"];
             this.Secret = _configuration["Razorpay:Secret"];
+            this._jwtService = jwtServices;
+            this._userDbContext = userDbContext;
         }
         public async Task<MerchantOrder> GenerateOrder(PaymentDto payment)
         {
@@ -81,6 +90,69 @@ namespace E_CommerceFurnitureBackend.Services.OrderServices
             {
                 throw;
             }
+        }
+        public async Task<List<OrderDto>> OrderDetails(string token)
+        {
+            try
+            {
+                var JwtToken =await _jwtService.GetUserIdFromToken(token);
+                int UserId = Convert.ToInt32(JwtToken);
+            if (UserId == null)
+                return new List<OrderDto>();
+            var data =await _userDbContext.Order
+                    .Include(c => c.orderItems)
+                    .ThenInclude(p=>p.Product).Where(c=>c.CustomerId==UserId).ToListAsync();
+             var details=await OrderData(data);  
+                if(details==null)
+                    return new List<OrderDto>();
+                return details;
+            }catch (Exception ex)
+            {
+                throw new Exception($"Internal server{ex.Message}");
+            }
+        }
+        public async Task<List<OrderDto>> OrderDetailsAdmin(int userId)
+        {
+            try
+            {
+                var data = await _userDbContext.Order
+                    .Include(o => o.orderItems).ThenInclude(p => p.Product)
+                    .Where(o => o.CustomerId == userId).ToListAsync();
+                var details=await OrderData(data);
+                if(details==null)
+                    return new List<OrderDto>();
+                return details;
+            } catch (Exception ex)
+            {
+                throw new Exception($"Internal server error {ex.Message}");
+            }
+        }
+        public async Task<List<OrderDto>> OrderData(List<Models.Order> data)
+        {
+            List<OrderDto> details = new List<OrderDto>();
+            foreach (var item in data)
+            {
+                foreach (var orderitem in item.orderItems)
+                {
+
+                    OrderDto value = new OrderDto
+                    {
+                        CustomerCity = item.CustomerCity,
+                        CustomerEmail = item.CustomerEmail,
+                        CustomerName = item.CustomerName,
+                        CustomerHomeAddress = item.CustomerHomeAddress,
+                        CustomerPhoneNumber = item.CustomerPhoneNumber,
+                        OrderId = item.OrderId,
+                        OrderStatus = item.OrderStatus,
+                        OrderTime = item.OrderTime,
+                        ProductId = orderitem.ProductId,
+                        Price = orderitem.Price,
+                        Quantity = orderitem.Quantity,
+                    };
+                    details.Add(value);
+                }
+            }
+            return details;
         }
     }
 }
