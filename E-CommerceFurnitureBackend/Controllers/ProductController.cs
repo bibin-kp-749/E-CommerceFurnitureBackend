@@ -53,26 +53,26 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("add-product")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProduct(ProductDto product)
         {
-            try
-            {
+            //try
+            //{
                 if (product == null)
                     return BadRequest("Please fill all the fields");
-                    var data=await _productServices.CreateProduct(product);
+                    var data=await _productServices.AddProduct(product);
                     if (!data)
                         return StatusCode(409,"Product Already existed");
                 return Ok("Updated Successfully");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            //}
 
         }
         [HttpPut("update-product")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int produtId, ProductDto product)
         {
             try

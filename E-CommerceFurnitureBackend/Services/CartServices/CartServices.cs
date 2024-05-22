@@ -65,7 +65,7 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             }
             catch (Exception ex)
             {
-                throw new Exception("Internal server error");
+                throw new Exception($"Internal server error{ex.Message}");
             }
         }
         public async Task<bool> DeleteItemsInCart(string token,int productId)
@@ -85,6 +85,27 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             catch (Exception ex)
             {
                 throw new Exception($"Internal server error{ex.Message}");
+            }
+        }
+        public async Task<bool> UpdateItemsInCart(string token,int productId,int value )
+        {
+            try
+            {
+                var response = await _jwtServices.GetUserIdFromToken(token);
+                var userId = Convert.ToInt32(response);
+                if (userId<1)
+                    throw new Exception("Something went wrong with userId");
+                var IsExict = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
+                if (IsExict == null)
+                    return false;
+                var data = await _userDbContext.CartItems.FirstOrDefaultAsync(c => c.CartId == IsExict.CartId && c.ProductId == productId);
+                data.Quantity =  data.Quantity + value;
+                await _userDbContext.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Internal server error {ex.Message}");
             }
         }
     }

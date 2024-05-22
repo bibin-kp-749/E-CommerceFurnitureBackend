@@ -8,5 +8,7 @@ namespace E_CommerceFurnitureBackend.Models.DTO
         public int CartId { get; set; }
         [Required]
         public int ProductId { get; set; }
+        [Required]
+        public int Quantity { get; set; }
     }
 }

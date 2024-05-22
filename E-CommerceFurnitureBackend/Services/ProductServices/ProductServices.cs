@@ -3,6 +3,7 @@ using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Models;
 using E_CommerceFurnitureBackend.Models.DTO;
 using Microsoft.EntityFrameworkCore;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace E_CommerceFurnitureBackend.Services.ProductServices
 {
@@ -10,10 +11,12 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
     {
         private readonly UserDbContext _userDbContext;
         private readonly IMapper _mapper;
-        public ProductServices(UserDbContext userDbContext,IMapper mapper)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public ProductServices(UserDbContext userDbContext,IMapper mapper,IWebHostEnvironment webHostEnvironment)
         {
             this._userDbContext = userDbContext;
             this._mapper = mapper;
+            this._webHostEnvironment = webHostEnvironment;
         }
         public async Task<ProductDto> ViewProductById(int productId)
         {
@@ -30,18 +33,34 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                 return new List<ProductDto>();
             return _mapper.Map<List<ProductDto>>(data);   
         }
-        public async Task<bool> CreateProduct(ProductDto product)
+        public async Task<bool> AddProduct(ProductDto product)
         {
             try
             {
+                string productImage = null;
+                if (product.Image!=null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(product.Image.FileName);
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Upload", "Product", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await product.Image.CopyToAsync(stream);
+                    }
+
+                    productImage = "/Uploads/Product/" + fileName;
+                }
+
                 var IsExist = await _userDbContext.Products.AnyAsync(p => p.ProductName == product.ProductName);
                 if (product.Image.Length==0||product.Image==null|| IsExist)
                     return false;
                 var value = _mapper.Map<Product>(product);
+                value.Image = productImage;
                 await _userDbContext.Products.AddAsync(value);
                 await _userDbContext.SaveChangesAsync();
-                return true;           
-            }catch(Exception ex)
+                return true;
+            }
+            catch (Exception ex)
             {
                 throw new Exception("Internal Server Error");
             }
@@ -64,6 +83,7 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
         }
         public async Task<bool> UpdateProduct(int productId, ProductDto product)
         {
+            string productImage = null;
             try
             {var response= await _userDbContext.Products.FirstOrDefaultAsync(p=>p.ProductId== productId);
             if (response == null)
@@ -71,10 +91,22 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             response.ProductName = product.ProductName;
             response.ProductCaption = product.ProductCaption;
             response.Category = product.Category;
-            response.Image = product.Image;
             response.OriginalPrice = product.OriginalPrice;
             response.OfferPrice = product.OfferPrice;
             response.Type=product.Type;
+                if (product.Image != null)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(product.Image.FileName);
+                    string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Upload", "Product", fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await product.Image.CopyToAsync(stream);
+                    }
+
+                    productImage = "/Uploads/Product/" + fileName;
+                }
+                response.Image=productImage;
             _userDbContext.SaveChanges();
                 return true;
             }catch(Exception ex)

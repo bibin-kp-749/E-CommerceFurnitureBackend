@@ -9,10 +9,10 @@ namespace E_CommerceFurnitureBackend.Models.DTO
         public string? ProductName { get; set; }
         public string? ProductCaption { get; set; }
         [Required]
-        public string? Image { get; set; }
+        public IFormFile Image { get; set; }
         [Required]
         public int OriginalPrice { get; set; }
-        public int OfferPrice { get; set; }
+        public int OfferPrice { get; set; } 
         [Required]
         public int Category { get; set; }
         [Required]

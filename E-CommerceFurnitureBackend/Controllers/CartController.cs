@@ -72,5 +72,23 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500,$"An unexpected error is occured {ex.Message}");
             }
         }
+        [HttpPut("Update-Count")]
+        [Authorize]
+        public async Task<IActionResult> UpdateItemsInCart(string token, int productId, int value)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token) || productId < 1)
+                    return BadRequest();
+                var response = await cartServices.UpdateItemsInCart(token, productId,value);
+                if (response)
+                    return Ok();
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error is occured {ex.Message}");
+            }
+        }
     }
 }
