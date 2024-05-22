@@ -5,6 +5,7 @@ using E_CommerceFurnitureBackend.Models.DTO;
 using E_CommerceFurnitureBackend.Services.JwtServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Razorpay.Api;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace E_CommerceFurnitureBackend.Services.CartServices
@@ -65,6 +66,25 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             catch (Exception ex)
             {
                 throw new Exception("Internal server error");
+            }
+        }
+        public async Task<bool> DeleteItemsInCart(string token,int productId)
+        {
+            try
+            {
+                var response = await _jwtServices.GetUserIdFromToken(token);
+                var userId = Convert.ToInt32(response);
+            var data = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
+            var cartItems =  _userDbContext.CartItems.Where(c => c.ProductId==productId&&c.CartId==data.CartId);
+                if (data == null||cartItems==null)
+                    return false;
+                await cartItems.ExecuteDeleteAsync();
+            await _userDbContext.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Internal server error{ex.Message}");
             }
         }
     }

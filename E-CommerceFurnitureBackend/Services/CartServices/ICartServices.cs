@@ -4,7 +4,8 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
 {
     public interface ICartServices
     {
-        Task<Boolean> AddProductToCartItem(string token, int productId);
+        Task<bool> AddProductToCartItem(string token, int productId);
         Task<List<ProductDto>> GetItemsInCart(string token);
+        Task<bool> DeleteItemsInCart(string token, int productId);
     }
 }

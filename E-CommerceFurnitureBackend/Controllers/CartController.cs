@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.AspNetCore.Authorization;
+using E_CommerceFurnitureBackend.DbCo;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
@@ -23,7 +24,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (token.Length < 1 || productId == null)
+                if (token.Length < 1)
                     return BadRequest("Please fill all the field");
                 var response = await cartServices.AddProductToCartItem(token, productId);
                 if (response)
@@ -51,6 +52,24 @@ namespace E_CommerceFurnitureBackend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"An unexpeced error is occured{ex.Message}");
+            }
+        }
+        [HttpDelete("remove-product")]
+        [Authorize]
+        public async Task<IActionResult> DeleteItemsInCart(string token, int productId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token)||productId<1)
+                    return BadRequest();
+                var response=await cartServices.DeleteItemsInCart(token, productId);
+                if(response)
+                    return Ok();
+                return NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500,$"An unexpected error is occured {ex.Message}");
             }
         }
     }
