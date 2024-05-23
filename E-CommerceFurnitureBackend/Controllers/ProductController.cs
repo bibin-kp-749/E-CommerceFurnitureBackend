@@ -18,12 +18,11 @@ namespace E_CommerceFurnitureBackend.Controllers
             this._productServices = productServices;
         }
         [HttpGet("ProductId")]
-        [Authorize]
         public async Task<IActionResult> GetProductById(int ProductId)
         {
             try
             {
-                if (ProductId == 0 )
+                if (ProductId == 0 || ProductId==null)
                     return BadRequest("Id can not contain zero or Null value");
                 var product = await _productServices.ViewProductById(ProductId);
                 if (product.ProductName == null)
@@ -44,7 +43,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if(category == null||category== "^\\s+")
                     return BadRequest("category field is required");
                 var product = await _productServices.ViewProductByCategory(category);
-                if (product == null)
+                if (product.Count==0||product== null)
                     return NotFound("Product Not Found");       
                     return Ok(product);
             }
@@ -59,7 +58,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (product == null)
+                if (product == null||Image==null)
                     return BadRequest("Please fill all the fields");
                     var data=await _productServices.AddProduct(product,Image);
                     if (!data)
@@ -78,6 +77,8 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
+                if (produtId == 0 || Image == null||product ==null)
+                    return BadRequest("Please Fill all the fields");
                 var response = await _productServices.UpdateProduct(produtId, product, Image);
                 if (response)
                     return Ok("Successfully Updated");
@@ -94,7 +95,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if ( Id == 0)
+                if ( Id == 0||Id==null)
                     return BadRequest("Id can not contain zero or Null value");
                 var response =await _productServices.DeleteProduct(Id);
                 if (!response)
@@ -128,7 +129,7 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
-                if (category.Length < 1)
+                if (category.Length < 1|| category == "^\\s+")
                     return BadRequest("please fill the field");
                 var response = await _productServices.AddNewCategory(category);
                 if (response)
@@ -146,9 +147,9 @@ namespace E_CommerceFurnitureBackend.Controllers
             try
             {
                 if (string.IsNullOrEmpty(searchItem))
-                    return BadRequest();
+                    return BadRequest("please add search item");
                 var response=await _productServices.SearchProduct(searchItem);
-                if (response.Count<1)
+                if (response.Count==0)
                     return NotFound("Item Not Found");
                 return Ok(response);
             }catch (Exception ex)
@@ -157,7 +158,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("paginated")]
-        public async Task<IActionResult> GetProductByPaginated(int PageNumber, int PageSize)
+        public async Task<IActionResult> GetProductByPaginated(int PageNumber=1, int PageSize=10)
         {
             try
             {

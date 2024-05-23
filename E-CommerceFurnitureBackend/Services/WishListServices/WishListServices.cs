@@ -44,6 +44,8 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
                 var response = await _jwtServices.GetUserIdFromToken(token);
                 var userId = Convert.ToInt32(response); 
                 var data = await _userDbContext.WishLists.Where(p => p.UserId == userId).Include(p=>p.product).ToListAsync();
+                if (data.Count == 0)
+                    return new List<ProductDto>();
                 var product= data.Select(s=>s.product).ToList();
                 return _mapper.Map<List<ProductDto>>(product) ;
             }catch (Exception ex)
@@ -57,9 +59,10 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
             {
                 var response = await _jwtServices.GetUserIdFromToken(token);
                 var userId = Convert.ToInt32(response);
-                var data = _userDbContext.WishLists.Where(p => p.UserId == userId && p.ProductId == productId).ExecuteDeleteAsync();
+                var data =await _userDbContext.WishLists.FirstOrDefaultAsync(p => p.UserId == userId && p.ProductId == productId);
                 if(data == null)
                     return false;
+                 _userDbContext.WishLists.Remove(data);
                 await _userDbContext.SaveChangesAsync();
                 return true;
             } catch (Exception ex)

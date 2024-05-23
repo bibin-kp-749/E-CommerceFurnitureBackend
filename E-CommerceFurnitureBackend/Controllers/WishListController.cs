@@ -22,14 +22,16 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
+                if (ProdctId == 0 ||ProdctId==null)
+                    return BadRequest("ProdctId cannot contain null or zero");
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var splitToken = token.Split(' ');
                 var jwtToken = splitToken[1];
-                if (ProdctId == 0 || jwtToken.Length < 1)
-                    return BadRequest("Please fill all the fields");
+                if (jwtToken.Length < 1)
+                    return BadRequest("Token is not valid");
                var response=await _services.AddWishList(jwtToken, ProdctId);
                 if(response)
-                    return Ok(response);
+                    return Ok("added successfully");
                 return StatusCode(409,"Item already Present");
             }
             catch (Exception ex)
@@ -47,10 +49,10 @@ namespace E_CommerceFurnitureBackend.Controllers
                 var splitToken = token.Split(' ');
                 var jwtToken = splitToken[1];
                 if (string.IsNullOrEmpty(jwtToken))
-                    return BadRequest();
+                    return BadRequest("Token is not valid");
                 var response = await _services.GetItemsInWishList(jwtToken);
-                if (response.Count < 1)
-                    return NotFound();
+                if (response.Count==0)
+                    return NotFound("does not contain any products");
                 return Ok(response);
             }
             catch (Exception ex)
@@ -64,11 +66,13 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
+                if (itemId == 0 || itemId == null)
+                    return BadRequest("ItemId is required");
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var splitToken = token.Split(' ');
                 var jwtToken = splitToken[1];
-                if (string.IsNullOrEmpty(jwtToken) || itemId == 0)
-                    return BadRequest();
+                if (string.IsNullOrEmpty(jwtToken) )
+                    return BadRequest("Token is not valid");
                 var response=await _services.DeleteTheWishListItem(itemId, jwtToken);
                 if(response)
                 return Ok("success");

@@ -60,7 +60,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if (userId==0||userId==null)
                     return BadRequest("Id can not contain zero or Null value");
                 var response= await _userServices.ViewUserById(userId);
-                if (response == null)
+                if (response.Email == null)
                     return NotFound("User Not Found");
                 return Ok(response);
             }
@@ -77,7 +77,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
                     return BadRequest("Please fill all the fields");
                 var response= await _userServices.LoginUser(user);
-                if (response == null)
+                if (response == "NotFound")
                     return StatusCode(404, "User not found");
                 if (response == "blocked")
                     return StatusCode(403,"Forbidden");

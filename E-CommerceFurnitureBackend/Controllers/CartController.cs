@@ -27,19 +27,21 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
+                if (productId == 0 || productId == null)
+                    return BadRequest("Product Id canot contain null or zero");
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var splitToken = token.Split(' ');
                 var jwtToken = splitToken[1];
                 if (jwtToken.Length < 1)
-                    return BadRequest("Please fill all the field");
+                    return BadRequest("Token is not valid");
                 var response = await cartServices.AddProductToCartItem(jwtToken, productId);
                 if (response)
-                    return Ok();
-                return StatusCode(409, "Internal server error kk");
+                    return Ok("Added successsfully");
+                return StatusCode(409, "Item already Exist in the cart");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                return StatusCode(500, $"An Unexpected Error occured{ex.Message}");
             }
         }
         [HttpGet("get-all")]
@@ -52,9 +54,9 @@ namespace E_CommerceFurnitureBackend.Controllers
                 var splitToken = token.Split(' ');
                 var jwtToken = splitToken[1];
                 if (string.IsNullOrEmpty(jwtToken))
-                    return BadRequest();
+                    return BadRequest("Token is not valid");
                 var response = await cartServices.GetItemsInCart(jwtToken);
-                if (response.Count< 1)
+                if (response.Count==0)
                     return NotFound();
                 return Ok(response);
             }
@@ -69,15 +71,17 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             try
             {
+                if (productId == 0 || productId == null)
+                    return BadRequest("Product Id can not contain null or zero");
                 var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
                 var splitToken = token.Split(' ');
                 var jwtToken = splitToken[1];
-                if (string.IsNullOrEmpty(jwtToken) ||productId<1)
-                    return BadRequest();
+                if (string.IsNullOrEmpty(jwtToken))
+                    return BadRequest("Token is not valid");
                 var response=await cartServices.DeleteItemsInCart(jwtToken, productId);
                 if(response)
-                    return Ok();
-                return NotFound();
+                    return Ok("Removed Successfully");
+                return NotFound("Product is not found");
             }
             catch (Exception ex)
             {
@@ -98,7 +102,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 var response = await cartServices.UpdateItemsInCart(jwtToken, productId,value);
                 if (response)
                     return Ok();
-                return NotFound();
+                return NotFound("Product Not found");
             }
             catch (Exception ex)
             {

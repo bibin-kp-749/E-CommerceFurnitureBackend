@@ -52,7 +52,7 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
         }
         public async Task<UserDto> ViewUserById(int userId)
         {
-            var user=await _userDbContext.Users.SingleOrDefaultAsync(u=>u.UserId == userId);
+            var user=await _userDbContext.Users.FirstOrDefaultAsync(u=>u.UserId == userId);
             if (user == null) 
                 return new UserDto();
             return _mapper.Map<UserDto>(user);
@@ -87,7 +87,7 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
                         return tokenString;
                     }
                 }
-                return data.ToString();
+                return "NotFound";
             }
             catch (Exception ex)
             {

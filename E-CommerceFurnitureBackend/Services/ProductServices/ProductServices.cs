@@ -23,8 +23,7 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             var data =await _userDbContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
             if (data == null)
                 return new ProductDto();
-            var product = _mapper.Map<ProductDto>(data);
-            return product;
+            return _mapper.Map<ProductDto>(data);
         }
         public async Task<List<ProductDto>> ViewProductByCategory(string category)
         {
@@ -128,7 +127,7 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
         public async Task<List<ProductDto>> SearchProduct(string searchItem)
         {
             var product= _userDbContext.Products.Where(s=>s.ProductName.Contains(searchItem));
-            if (product == null)
+            if (product == null)    
                return new List<ProductDto>();
             return _mapper.Map<List<ProductDto>>(product);      
         }

@@ -27,15 +27,15 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             {
                 var response=await _jwtServices.GetUserIdFromToken(token);
                 var userId = Convert.ToInt32(response);
-                if(userId==null) 
+                if(userId==null||userId==0) 
                     return false;
                 var data = _userDbContext.Cart.FirstOrDefault(c => c.UserId == userId);
                 if (data != null)
                 {
-                //var IsExist = data.CartItems.Any(c => c.CartId == data.CartId && c.ProductId == productId);
-                //if (IsExist)
-                //    return false;
-                await _userDbContext.CartItems.AddAsync(new CartItems { CartId = data.CartId, ProductId = productId });
+                    //var IsExist = data.CartItems.FirstOrDefault(c => c.CartId == data.CartId && c.ProductId == productId);
+                    //if (IsExist!=null)
+                    //    return false;
+                    await _userDbContext.CartItems.AddAsync(new CartItems { CartId = data.CartId, ProductId = productId });
                     await _userDbContext.SaveChangesAsync();
                     return true;
                 }
@@ -45,6 +45,7 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
                     await _userDbContext.SaveChangesAsync();
                     var cart = await _userDbContext.Cart.FirstOrDefaultAsync(s => s.UserId == userId);
                     await _userDbContext.CartItems.AddAsync(new CartItems { CartId = cart.CartId, ProductId = productId });
+                    await _userDbContext.SaveChangesAsync();
                     return true;
                 }
             }
@@ -79,7 +80,7 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
                 var userId = Convert.ToInt32(response);
             var data = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
             var cartItems =  _userDbContext.CartItems.Where(c => c.ProductId==productId&&c.CartId==data.CartId);
-                if (data == null||cartItems==null)
+                if (cartItems==null)
                     return false;
                 await cartItems.ExecuteDeleteAsync();
             await _userDbContext.SaveChangesAsync();
@@ -99,9 +100,9 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
                 if (userId<1)
                     throw new Exception("Something went wrong with userId");
                 var IsExict = await _userDbContext.Cart.FirstOrDefaultAsync(c => c.UserId == userId);
-                if (IsExict == null)
-                    return false;
                 var data = await _userDbContext.CartItems.FirstOrDefaultAsync(c => c.CartId == IsExict.CartId && c.ProductId == productId);
+                if (data == null)
+                    return false;
                 data.Quantity =  data.Quantity + value;
                 await _userDbContext.SaveChangesAsync();
                 return true;
