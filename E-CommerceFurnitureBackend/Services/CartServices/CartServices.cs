@@ -27,12 +27,15 @@ namespace E_CommerceFurnitureBackend.Services.CartServices
             {
                 var response=await _jwtServices.GetUserIdFromToken(token);
                 var userId = Convert.ToInt32(response);
-                if(userId ==null) 
+                if(userId==null) 
                     return false;
                 var data = _userDbContext.Cart.FirstOrDefault(c => c.UserId == userId);
                 if (data != null)
                 {
-                    await _userDbContext.CartItems.AddAsync(new CartItems { CartId = data.CartId, ProductId = productId });
+                //var IsExist = data.CartItems.Any(c => c.CartId == data.CartId && c.ProductId == productId);
+                //if (IsExist)
+                //    return false;
+                await _userDbContext.CartItems.AddAsync(new CartItems { CartId = data.CartId, ProductId = productId });
                     await _userDbContext.SaveChangesAsync();
                     return true;
                 }

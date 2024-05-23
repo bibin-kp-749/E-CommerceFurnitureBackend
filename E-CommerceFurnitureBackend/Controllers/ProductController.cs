@@ -17,7 +17,8 @@ namespace E_CommerceFurnitureBackend.Controllers
         {
             this._productServices = productServices;
         }
-        [HttpGet("{ProductId}")]
+        [HttpGet("ProductId")]
+        [Authorize]
         public async Task<IActionResult> GetProductById(int ProductId)
         {
             try
@@ -53,31 +54,31 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("add-product")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddProduct(ProductDto product)
-        {
-            //try
-            //{
-                if (product == null)
-                    return BadRequest("Please fill all the fields");
-                    var data=await _productServices.AddProduct(product);
-                    if (!data)
-                        return StatusCode(409,"Product Already existed");
-                return Ok("Updated Successfully");
-            //}
-            //catch (Exception ex)
-            //{
-            //    return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
-            //}
-
-        }
-        [HttpPut("update-product")]
-        //[Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateProduct(int produtId, ProductDto product)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AddProduct([FromForm]ProductDto product,IFormFile Image)
         {
             try
             {
-                var response = await _productServices.UpdateProduct(produtId, product);
+                if (product == null)
+                    return BadRequest("Please fill all the fields");
+                    var data=await _productServices.AddProduct(product,Image);
+                    if (!data)
+                        return StatusCode(409,"Product Already existed");
+                return Ok("Updated Successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+
+        }
+        [HttpPut("update-product")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateProduct(int produtId, [FromForm] ProductDto product, IFormFile Image)
+        {
+            try
+            {
+                var response = await _productServices.UpdateProduct(produtId, product, Image);
                 if (response)
                     return Ok("Successfully Updated");
                 return NotFound("Item not found");
@@ -102,7 +103,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500,$"An Unexpected error occurred{ex.Message}");
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
 
         }
@@ -121,13 +122,13 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500,$"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpPost("{category}")]
+        [HttpPost("add-category")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> AddNewCategory(CategoryDto category)
+        public async Task<IActionResult> AddNewCategory(string category)
         {
             try
             {
-                if (category.CategoryName.Length < 1)
+                if (category.Length < 1)
                     return BadRequest("please fill the field");
                 var response = await _productServices.AddNewCategory(category);
                 if (response)
@@ -139,7 +140,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpGet("{searchItem}")]
+        [HttpGet("searchItem")]
         public async Task<IActionResult> SearchProduct(string searchItem)
         {
             try

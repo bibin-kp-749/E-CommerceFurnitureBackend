@@ -19,14 +19,14 @@ namespace E_CommerceFurnitureBackend.Controllers
             this._contextAccessor = httpContextAccessor;
         }
         [HttpPost("GenerateOrder")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GenerateOrder(PaymentDto payment )
         {
             var response=await _orderServices.GenerateOrder(payment);
             return Ok(response);
         }
         [HttpPost("CapturePayment")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> CapturePayment()
         {
             try
@@ -49,7 +49,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("OrderDetailsOfUser")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> OrderDetails(string token)
         {
             try
@@ -66,7 +66,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("OrderDetailsByAdmin")]
-        [Authorize(Roles ="Admin")]
+        //[Authorize(Roles ="Admin")]
         public async Task<IActionResult> OrderDetailsAdmin(int userId)
         {
             try
@@ -83,7 +83,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("TotalProductsPurchased")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> Totalproductspurchased()
         {
@@ -98,8 +98,8 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500,ex.Message);
             }
         }
-        [HttpGet("Totalrevenuegenerated")]
-        [Authorize(Roles = "Admin")]
+        [HttpGet("Totalrevenue")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Totalrevenuegenerated()
         {
             try

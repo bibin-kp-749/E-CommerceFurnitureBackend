@@ -8,9 +8,11 @@ namespace E_CommerceFurnitureBackend.Services.JwtServices
     public class JwtServices: IJwtServices
     {
         private readonly string secreteKey;
+        private IHttpContextAccessor httpContextAccessor;
         public JwtServices(IConfiguration configuration)
         {
             this.secreteKey = configuration["JwtConfig:Key"];
+            this.httpContextAccessor = httpContextAccessor;
         }
         public async Task<int> GetUserIdFromToken(string token)
         {
@@ -37,5 +39,12 @@ namespace E_CommerceFurnitureBackend.Services.JwtServices
                 throw new Exception($"Something Went wrong{ex.Message}");
             }
         }
+        //public async Task<string> GetToke()
+        //{
+        //    var token = HttpContext.r.Headers["Authorization"].FirstOrDefault();
+        //    var splitToken = token.Split(' ');
+        //    var jwtToken = splitToken[1];
+        //    return jwtToken;
+        //}
     }
 }

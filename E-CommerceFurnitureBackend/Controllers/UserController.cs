@@ -51,7 +51,7 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
-        [HttpGet("ViewUserById")]
+        [HttpGet("{userId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ViewUserById(int userId)
         {
@@ -77,9 +77,11 @@ namespace E_CommerceFurnitureBackend.Controllers
                 if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
                     return BadRequest("Please fill all the fields");
                 var response= await _userServices.LoginUser(user);
-                if (response!=null)
-                    return Ok(response);
-                return StatusCode(404,"User not found");
+                if (response == null)
+                    return StatusCode(404, "User not found");
+                if (response == "blocked")
+                    return StatusCode(403,"Forbidden");
+                return Ok(response);
             }
             catch (Exception ex)
             {

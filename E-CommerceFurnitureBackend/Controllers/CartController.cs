@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.AspNetCore.Authorization;
 using E_CommerceFurnitureBackend.DbCo;
+using E_CommerceFurnitureBackend.Services.JwtServices;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
@@ -14,19 +15,24 @@ namespace E_CommerceFurnitureBackend.Controllers
     public class CartController : ControllerBase
     {
         private readonly ICartServices cartServices;
-        public CartController(ICartServices cartServices)
+        private readonly IJwtServices jwtServices;
+        public CartController(ICartServices cartServices,IJwtServices jwtServices)
         {
             this.cartServices = cartServices;
+            this.jwtServices = jwtServices;
         }
-        [HttpPost("cart/:productId")]
+        [HttpPost("{productId}")]
         [Authorize]
-        public async Task<IActionResult> AddProductToCart(string token,int productId)
+        public async Task<IActionResult> AddProductToCart(int productId)
         {
             try
             {
-                if (token.Length < 1)
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (jwtToken.Length < 1)
                     return BadRequest("Please fill all the field");
-                var response = await cartServices.AddProductToCartItem(token, productId);
+                var response = await cartServices.AddProductToCartItem(jwtToken, productId);
                 if (response)
                     return Ok();
                 return StatusCode(409, "Internal server error kk");
@@ -38,13 +44,16 @@ namespace E_CommerceFurnitureBackend.Controllers
         }
         [HttpGet("get-all")]
         [Authorize]
-        public async Task<IActionResult> GetItemsInCart(string token)
+        public async Task<IActionResult> GetItemsInCart()
         {
             try
             {
-                if (string.IsNullOrEmpty(token))
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (string.IsNullOrEmpty(jwtToken))
                     return BadRequest();
-                var response = await cartServices.GetItemsInCart(token);
+                var response = await cartServices.GetItemsInCart(jwtToken);
                 if (response.Count< 1)
                     return NotFound();
                 return Ok(response);
@@ -56,13 +65,16 @@ namespace E_CommerceFurnitureBackend.Controllers
         }
         [HttpDelete("remove-product")]
         [Authorize]
-        public async Task<IActionResult> DeleteItemsInCart(string token, int productId)
+        public async Task<IActionResult> DeleteItemsInCart(int productId)
         {
             try
             {
-                if (string.IsNullOrEmpty(token)||productId<1)
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (string.IsNullOrEmpty(jwtToken) ||productId<1)
                     return BadRequest();
-                var response=await cartServices.DeleteItemsInCart(token, productId);
+                var response=await cartServices.DeleteItemsInCart(jwtToken, productId);
                 if(response)
                     return Ok();
                 return NotFound();
@@ -74,13 +86,16 @@ namespace E_CommerceFurnitureBackend.Controllers
         }
         [HttpPut("Update-Count")]
         [Authorize]
-        public async Task<IActionResult> UpdateItemsInCart(string token, int productId, int value)
+        public async Task<IActionResult> UpdateItemsInCart( int productId, int value)
         {
             try
             {
-                if (string.IsNullOrEmpty(token) || productId < 1)
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (string.IsNullOrEmpty(jwtToken) || productId < 1)
                     return BadRequest();
-                var response = await cartServices.UpdateItemsInCart(token, productId,value);
+                var response = await cartServices.UpdateItemsInCart(jwtToken, productId,value);
                 if (response)
                     return Ok();
                 return NotFound();

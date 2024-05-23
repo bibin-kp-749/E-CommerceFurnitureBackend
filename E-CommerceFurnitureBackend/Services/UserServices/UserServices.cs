@@ -62,28 +62,32 @@ namespace E_CommerceFurnitureBackend.Services.UserServices
             try
             {
                 var data = await _userDbContext.Users.FirstOrDefaultAsync(u => u.Email == user.Email);
-                var passsword = BCrypt.Net.BCrypt.EnhancedVerify(user.Password, data.Password, HashType.SHA256);
-                if (passsword)
+                if (data != null)
                 {
-                    var tokenHandler = new JwtSecurityTokenHandler();
-                    var key = Encoding.ASCII.GetBytes(_configuration["JwtConfig:Key"]);
-                    var tokenDescriptor = new SecurityTokenDescriptor
+                    var passsword = BCrypt.Net.BCrypt.EnhancedVerify(user.Password, data.Password, HashType.SHA256);
+                    if (passsword)
                     {
-                        Subject=new ClaimsIdentity(new Claim[]
+                        if (data.Isstatus == false)
+                            return "blocked";
+                        var tokenHandler = new JwtSecurityTokenHandler();
+                        var key = _configuration["JwtConfig:Key"];
+                        var tokenDescriptor = new SecurityTokenDescriptor
                         {
+                            Subject = new ClaimsIdentity(new Claim[]
+                            {
                             new Claim(ClaimTypes.NameIdentifier,data.UserId.ToString()),
                             new Claim(ClaimTypes.Name,data.UserName),
                             new Claim(ClaimTypes.Role,data.Role),
-                        }),
-                        Expires = DateTime.UtcNow.AddMinutes(10),
-                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-                    };
-                    var token=tokenHandler.CreateToken(tokenDescriptor);
-                    var tokenString=tokenHandler.WriteToken(token);
-                    return tokenString;
+                            }),
+                            Expires = DateTime.UtcNow.AddMinutes(30),
+                            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256Signature)
+                        };
+                        var token = tokenHandler.CreateToken(tokenDescriptor);
+                        var tokenString = tokenHandler.WriteToken(token);
+                        return tokenString;
+                    }
                 }
-                string defulte=null;
-                return defulte;
+                return data.ToString();
             }
             catch (Exception ex)
             {

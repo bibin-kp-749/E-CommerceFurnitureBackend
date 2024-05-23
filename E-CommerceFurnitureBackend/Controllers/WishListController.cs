@@ -3,6 +3,7 @@ using E_CommerceFurnitureBackend.Services.WishListServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace E_CommerceFurnitureBackend.Controllers
 {
@@ -17,30 +18,37 @@ namespace E_CommerceFurnitureBackend.Controllers
         }
         [HttpPost("AddWishList")]
         [Authorize]
-        public async Task<IActionResult> AddWishList(string token, int ProdctId)
+        public async Task<IActionResult> AddWishList( int ProdctId)
         {
             try
             {
-                if (ProdctId == 0 || ProdctId == null || token.Length < 1)
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (ProdctId == 0 || jwtToken.Length < 1)
                     return BadRequest("Please fill all the fields");
-               var response=await _services.AddWishList(token,ProdctId);
+               var response=await _services.AddWishList(jwtToken, ProdctId);
                 if(response)
                     return Ok(response);
                 return StatusCode(409,"Item already Present");
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
-                return StatusCode(500,$"An unexpected error is occure{ex.Message}");
+                return StatusCode(500, $"An unexpected error is occure{ex.Message}");
             }
         }
         [HttpGet("get-all")]
         [Authorize]
-        public async Task<IActionResult> GetItemsInWishList(string token)
+        public async Task<IActionResult> GetItemsInWishList()
         {
             try
             {
-                if (string.IsNullOrEmpty(token))
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (string.IsNullOrEmpty(jwtToken))
                     return BadRequest();
-                var response = await _services.GetItemsInWishList(token);
+                var response = await _services.GetItemsInWishList(jwtToken);
                 if (response.Count < 1)
                     return NotFound();
                 return Ok(response);
@@ -52,13 +60,16 @@ namespace E_CommerceFurnitureBackend.Controllers
         }
         [HttpDelete("{itemId}")]
         [Authorize]
-        public async Task<IActionResult> DeleteTheWishListItem(int itemId, string token)
+        public async Task<IActionResult> DeleteTheWishListItem(int itemId)
         {
             try
             {
-                if (string.IsNullOrEmpty(token)|| itemId == 0|| itemId == null)
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (string.IsNullOrEmpty(jwtToken) || itemId == 0)
                     return BadRequest();
-                var response=await _services.DeleteTheWishListItem(itemId, token);
+                var response=await _services.DeleteTheWishListItem(itemId, jwtToken);
                 if(response)
                 return Ok("success");
                 return NotFound("Item not found");

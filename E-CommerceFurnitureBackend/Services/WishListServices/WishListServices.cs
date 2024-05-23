@@ -31,7 +31,8 @@ namespace E_CommerceFurnitureBackend.Services.WishListServices
                 var data = await _userDbContext.WishLists.AddAsync(new WishList { UserId=Convert.ToInt32(userId),ProductId=ProdctId });
                 await _userDbContext.SaveChangesAsync();
                 return true;
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception($"Internal Server error {ex.Message}");
             }

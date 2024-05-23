@@ -3,5 +3,6 @@
     public interface IJwtServices
     {
         Task<int> GetUserIdFromToken(string token);
+        //Task<string> GetToke();
     }
 }

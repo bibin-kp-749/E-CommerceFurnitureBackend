@@ -33,32 +33,32 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                 return new List<ProductDto>();
             return _mapper.Map<List<ProductDto>>(data);   
         }
-        public async Task<bool> AddProduct(ProductDto product)
+        public async Task<bool> AddProduct(ProductDto product, IFormFile Image)
         {
             try
             {
-                string productImage = null;
-                if (product.Image!=null)
+                var IsExist = await _userDbContext.Products.AnyAsync(p => p.ProductName == product.ProductName);
+                if (IsExist)
+                    return false;
+                if (Image != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(product.Image.FileName);
+                    string? productImage = null;
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
                     string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Upload", "Product", fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        await product.Image.CopyToAsync(stream);
+                        await Image.CopyToAsync(stream);
                     }
 
                     productImage = "/Uploads/Product/" + fileName;
-                }
-
-                var IsExist = await _userDbContext.Products.AnyAsync(p => p.ProductName == product.ProductName);
-                if (product.Image.Length==0||product.Image==null|| IsExist)
-                    return false;
-                var value = _mapper.Map<Product>(product);
-                value.Image = productImage;
-                await _userDbContext.Products.AddAsync(value);
-                await _userDbContext.SaveChangesAsync();
-                return true;
+                    var value = _mapper.Map<Product>(product);
+                    value.Image = productImage;
+                    await _userDbContext.Products.AddAsync(value);
+                    await _userDbContext.SaveChangesAsync();
+                    return true;
+                };
+                return false;
             }
             catch (Exception ex)
             {
@@ -71,7 +71,7 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             if (product == null)
                 return false;
             _userDbContext.Products.Remove(product);
-            await _userDbContext.SaveChangesAsync();
+             _userDbContext.SaveChanges();
             return true;
         }
         public async Task<List<ProductDto>> ViewAllProducts()
@@ -81,9 +81,9 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                 return new List<ProductDto>();
             return _mapper.Map<List<ProductDto>>(response);
         }
-        public async Task<bool> UpdateProduct(int productId, ProductDto product)
+        public async Task<bool> UpdateProduct(int productId, ProductDto product, IFormFile Image)
         {
-            string productImage = null;
+            string? productImage = null;
             try
             {var response= await _userDbContext.Products.FirstOrDefaultAsync(p=>p.ProductId== productId);
             if (response == null)
@@ -94,14 +94,14 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             response.OriginalPrice = product.OriginalPrice;
             response.OfferPrice = product.OfferPrice;
             response.Type=product.Type;
-                if (product.Image != null)
+                if (Image != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(product.Image.FileName);
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(Image.FileName);
                     string filePath = Path.Combine(_webHostEnvironment.WebRootPath, "Upload", "Product", fileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        await product.Image.CopyToAsync(stream);
+                        await Image.CopyToAsync(stream);
                     }
 
                     productImage = "/Uploads/Product/" + fileName;
@@ -114,13 +114,12 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
                 throw new Exception($"Internal server error {ex.Message}");
             }
         }
-        public async Task<bool> AddNewCategory(CategoryDto category)
+        public async Task<bool> AddNewCategory(string category)
         {
-            var categories = _userDbContext.Categories.FirstOrDefault(s => s.CategoryName == category.CategoryName);
+            var categories = _userDbContext.Categories.FirstOrDefault(s => s.CategoryName == category);
             if (categories == null)
             {
-                var data = _mapper.Map<Category>(category);
-                var response = await _userDbContext.Categories.AddAsync(data);
+                var response = await _userDbContext.Categories.AddAsync(new Category { CategoryName=category});
                 await _userDbContext.SaveChangesAsync();
                 return true;
             }else 
