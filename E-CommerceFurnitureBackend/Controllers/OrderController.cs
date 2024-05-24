@@ -19,14 +19,14 @@ namespace E_CommerceFurnitureBackend.Controllers
             this._contextAccessor = httpContextAccessor;
         }
         [HttpPost("GenerateOrder")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GenerateOrder(PaymentDto payment )
         {
             var response=await _orderServices.GenerateOrder(payment);
             return Ok(response);
         }
         [HttpPost("CapturePayment")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> CapturePayment()
         {
             try
@@ -49,14 +49,17 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("OrderDetailsOfUser")]
-        //[Authorize]
-        public async Task<IActionResult> OrderDetails(string token)
+        [Authorize]
+        public async Task<IActionResult> OrderDetails()
         {
             try
             {
-                if (token.Length < 1||token==null)
-                    return BadRequest();
-                var response = await _orderServices.OrderDetails(token);
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+                var splitToken = token.Split(' ');
+                var jwtToken = splitToken[1];
+                if (string.IsNullOrEmpty(jwtToken))
+                    return BadRequest("Token is not valid");
+                var response = await _orderServices.OrderDetails(jwtToken);
                 if(response.Count== 0)
                     return Ok("Not conain data");
                 return Ok(response);
@@ -66,7 +69,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpPost("OrderDetailsByAdmin")]
-        //[Authorize(Roles ="Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> OrderDetailsAdmin(int userId)
         {
             try
@@ -83,7 +86,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("TotalProductsPurchased")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
 
         public async Task<IActionResult> Totalproductspurchased()
         {
@@ -99,7 +102,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
         }
         [HttpGet("Totalrevenue")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Totalrevenuegenerated()
         {
             try

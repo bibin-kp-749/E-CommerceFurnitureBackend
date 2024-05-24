@@ -16,14 +16,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<IProductServices, ProductServices>();
-builder.Services.AddSingleton<IWishListServices, WishListServices>();
-builder.Services.AddSingleton<ICartServices,CartServices>();
-builder.Services.AddSingleton<IUserServices,UserServices>();
-builder.Services.AddSingleton<UserDbContext>();
+builder.Services.AddScoped<IProductServices, ProductServices>();
+builder.Services.AddScoped<IWishListServices, WishListServices>();
+builder.Services.AddScoped<ICartServices,CartServices>();
+builder.Services.AddScoped<IUserServices,UserServices>();
+builder.Services.AddScoped<UserDbContext>();
 builder.Services.AddAutoMapper(typeof(Mappers));
-builder.Services.AddSingleton<IOrderServices,OrderServices>();
-builder.Services.AddSingleton<IJwtServices,JwtServices>();
+builder.Services.AddScoped<IOrderServices,OrderServices>();
+builder.Services.AddScoped<IJwtServices,JwtServices>();
 builder.Services.AddHttpContextAccessor();
 
 //--------------

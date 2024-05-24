@@ -41,7 +41,7 @@ namespace E_CommerceFurnitureBackend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An Unexpected Error occured{ex.Message}");
+                return StatusCode(500, $"An Unexpected Error occured guyzz{ex.Message}");
             }
         }
         [HttpGet("get-all")]
