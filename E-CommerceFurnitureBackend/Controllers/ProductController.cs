@@ -141,6 +141,24 @@ namespace E_CommerceFurnitureBackend.Controllers
                 return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
             }
         }
+        [HttpDelete("remove-category")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteCategory(int categoryId)
+        {
+            try
+            {
+                if (categoryId == 0 || categoryId == null)
+                    return BadRequest();
+                var response = await _productServices.DeleteCategory(categoryId);
+                if (!response)
+                    return NotFound("Categry Not found");
+                return Ok("Success");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Unexpected error occurred{ex.Message}");
+            }
+        }
         [HttpGet("searchItem")]
         public async Task<IActionResult> SearchProduct(string searchItem)
         {

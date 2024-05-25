@@ -5,15 +5,16 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
 {
     public interface IProductServices
     {
-        Task<ProductDto> ViewProductById(int productId);
-        Task<List<ProductDto>> ViewProductByCategory(string category);
+        Task<ViewProductDto> ViewProductById(int productId);
+        Task<List<ViewProductDto>> ViewProductByCategory(string category);
         Task<bool> AddProduct(ProductDto product, IFormFile Image);
         Task<bool> DeleteProduct(int Id);
-        Task<List<ProductDto>> ViewAllProducts();
+        Task<List<ViewProductDto>> ViewAllProducts();
         Task<bool> UpdateProduct(int Id, ProductDto product, IFormFile Image);
         Task<bool> AddNewCategory(string category);
-        Task<List<ProductDto>> SearchProduct(string searchItem);
-        Task<List<ProductDto>> GetProductByPaginated(int PageNumber, int PageSize);
+        Task<List<ViewProductDto>> SearchProduct(string searchItem);
+        Task<List<ViewProductDto>> GetProductByPaginated(int PageNumber, int PageSize);
+        Task<bool> DeleteCategory(int categoryId);
 
     }
 }

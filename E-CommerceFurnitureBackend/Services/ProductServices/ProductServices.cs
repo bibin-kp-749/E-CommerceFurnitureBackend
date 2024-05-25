@@ -2,6 +2,7 @@
 using E_CommerceFurnitureBackend.DbCo;
 using E_CommerceFurnitureBackend.Models;
 using E_CommerceFurnitureBackend.Models.DTO;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -18,19 +19,19 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             this._mapper = mapper;
             this._webHostEnvironment = webHostEnvironment;
         }
-        public async Task<ProductDto> ViewProductById(int productId)
+        public async Task<ViewProductDto> ViewProductById(int productId)
         {
             var data =await _userDbContext.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
             if (data == null)
-                return new ProductDto();
-            return _mapper.Map<ProductDto>(data);
+                return new ViewProductDto();
+            return _mapper.Map<ViewProductDto>(data);
         }
-        public async Task<List<ProductDto>> ViewProductByCategory(string category)
+        public async Task<List<ViewProductDto>> ViewProductByCategory(string category)
         {
             var data = await _userDbContext.Products.Include(c => c.categories).Where(c => c.categories.CategoryName == category).ToListAsync();
             if (data == null)
-                return new List<ProductDto>();
-            return _mapper.Map<List<ProductDto>>(data);   
+                return new List<ViewProductDto>();
+            return _mapper.Map<List<ViewProductDto>>(data);   
         }
         public async Task<bool> AddProduct(ProductDto product, IFormFile Image)
         {
@@ -73,12 +74,12 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
              _userDbContext.SaveChanges();
             return true;
         }
-        public async Task<List<ProductDto>> ViewAllProducts()
+        public async Task<List<ViewProductDto>> ViewAllProducts()
         {
             var response=await _userDbContext.Products.ToListAsync();
             if (response==null)
-                return new List<ProductDto>();
-            return _mapper.Map<List<ProductDto>>(response);
+                return new List<ViewProductDto>();
+            return _mapper.Map<List<ViewProductDto>>(response);
         }
         public async Task<bool> UpdateProduct(int productId, ProductDto product, IFormFile Image)
         {
@@ -124,21 +125,30 @@ namespace E_CommerceFurnitureBackend.Services.ProductServices
             }else 
                 return false;
         }
-        public async Task<List<ProductDto>> SearchProduct(string searchItem)
+        public async Task<List<ViewProductDto>> SearchProduct(string searchItem)
         {
             var product= _userDbContext.Products.Where(s=>s.ProductName.Contains(searchItem));
             if (product == null)    
-               return new List<ProductDto>();
-            return _mapper.Map<List<ProductDto>>(product);      
+               return new List<ViewProductDto>();
+            return _mapper.Map<List<ViewProductDto>>(product);      
         }
-        public async Task<List<ProductDto>> GetProductByPaginated(int PageNumber=1,int PageSize=10)
+        public async Task<List<ViewProductDto>> GetProductByPaginated(int PageNumber=1,int PageSize=10)
         {
             var totalCount = _userDbContext.Products.Count();
             var totalPage =(int)Math.Ceiling((decimal)totalCount / PageSize);
             var productsPerPage = _userDbContext.Products
                 .Skip((PageNumber - 1) * PageSize)
                 .Take(PageSize);
-            return _mapper.Map<List<ProductDto>>(productsPerPage);
+            return _mapper.Map<List<ViewProductDto>>(productsPerPage);
+        }
+        public async Task<bool> DeleteCategory(int categoryId)
+        {
+            var product = await _userDbContext.Categories.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
+            if (product == null)
+                return false;
+            _userDbContext.Categories.Remove(product);
+            _userDbContext.SaveChanges();
+            return true;
         }
     }
 }
